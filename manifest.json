@@ -1,0 +1,21 @@
+{
+    "name": "Translation by DeepL with Shaping",
+    "version": "1.0",
+    "background": {
+        "scripts": [
+            "script.js"
+        ],
+        "persistent": true
+    },
+    "description": "Chrome extension to format and translate selected text directly from PDF files with DeepL.",
+    "icons": {
+        "16": "img/translation_16.png",
+        "48": "img/translation_48.png",
+        "128": "img/translation_128.png"
+    },
+    "manifest_version": 2,
+    "permissions": [
+        "contextMenus",
+        "tabs"
+    ]
+}
