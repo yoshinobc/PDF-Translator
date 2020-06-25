@@ -1,23 +1,38 @@
-document.addEventListener("selectionchange", function () {
-    var source_text = window.getSelection().toString();
-    const dot = RegExp("(\.)([A-Z])", "g");
-    const haifun = RegExp("([a-zA-Z])(-)([a-zA-Z])", "g");
-    console.log(source_text)
-    setTimeout(function() {
-        if (source_text == window.getSelection().toString()) {
-            let target_text;
-            target_text = source_text.replace(dot, "$1 $2")
-            target_text = source_text.replace(haifun, "$1$3");
-            console.log(target_text)
-            chrome.runtime.sendMessage({
-                text: target_text
-            },
-                function (response) {
-                    if (response) {
-                        console.log("resp" + response.text);
-                    }
-                }
-            );
-        }
-    }, 1 * 1000);
+
+const config = { attributes: true, childList: true, characterData: true, subtree: true };
+
+//check_deeplリクエストを受け取って，エレメントから翻訳結果を見てそれを返す．
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    if (request.type == "check_deepl") {
+        console.log("check deepl")
+        var translatedtext = check_deepl();
+        console.log("translated: %s", translatedtext);
+        sendResponse({
+            text: translatedtext
+        });
+    }
+    return true;
 });
+
+function check_deepl() {
+    const translated_text = document.getElementsByClassName("lmt__textarea lmt__target_textarea lmt__textarea_base_style")[0];
+    console.log("translated text: %s", translated_text);
+    const observer = new MutationObserver(mutations => {
+        mutations.forEach((mutation) => {
+            if (!translated_text) {
+                setTimeout(check_deepl, 1 * 1000);
+                return;
+            }
+            else {
+                if (translated_text == "") {
+                    setTimeout(check_deepl, 1 * 1000);
+                    return;
+                }
+                else {
+                    return translated_text.value;
+                }
+            }
+        })
+    });
+    observer.observe(translated_text, config);
+}

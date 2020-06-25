@@ -1,90 +1,62 @@
-var windowid = -1;
-
-
-chrome.runtime.onMessage.addListener(function (message, sender, sendRes) {
-    chrome.tabs.create({
-        url: "https://www.deepl.com/translator#en/ja/" + encodeURIComponent(message.text)
+// ブラウザがPDFファイルを開こうとした時に，PDF.jsで変換されたhtmlページに遷移する．
+chrome.webNavigation.onBeforeNavigate.addListener(details => {
+    console.log("add listner: %s", details.url);
+    if (details.url.endsWith(".pdf")) {
+        if (details.url.startsWith("file:///")) {
+            chrome.extension.isAllowedFileSchemeAccess(function (isAllowedAccess) {
+                if (!isAllowedAccess) {
+                    chrome.tabs.update(details.tabId, {
+                        url: chrome.runtime.getURL("/open_extensions_page.html")
+                    });
+                }
+            });
+        }
+        let url = details.url;
+        if (url.startsWith("file:///")) {
+            url = url.substring(8, url.length);
+        }
+        chrome.tabs.update({
+            url: chrome.runtime.getURL(`/pdf.js/web/viewer.html?file=${url}`)
+        });
     }
-    );
-    sendRes({ "text": "accept" });
-    return true;
 });
 
 
-/*
-window.addEventListener("message", function receive(event) {
-    this.console.log("accept event");
-    this.console.log(event.data.keyword);
-    if (event.data.keyword) {
-        const str = event.data.keyword;
-        const str_length = str.length;
-        if (str_length <= 3000) {
-            this.setTimeout(function () {
-                if (str == window.getSelection().toString()) {
-                    let search_url;
-                    let target_text;
-                    target_text = source_text.replace(dot, "$1 $2")
-                    target_text = source_text.replace(haifun, "$1$3");
-                    chrome.tabs.create({
-                        url: "https://www.deepl.com/translator#en/ja/" + encodeURIComponent(target_text)
-                    }
-                    )
-                }
-            }, 1);
-        }
-    }
-}, false);
+//inject.jsからget_translatedリクエストがきた時に，翻訳結果を返す
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    console.log("get translate: %s", request.type);
+    if (request.type == "get_translated") {
+        get_translatedtext(request.text); //タブ作成
 
-
-
-function translate() {
-    if (windowid == -1) {
-        chrome.windows.getCurrent(function (curWindow) {
-            chrome.windows.create(
+        //タブが作成された時に，check_deepl(content.js)をリクエストする．
+        chrome.tabs.onCreated.addListener(function (tab) {
+            console.log("oncrreate")
+            chrome.tabs.sendMessage(tab.id,
                 {
-                    "url": "console.html",
-                    "focused": false,
-                    "top": Math.round(curWindow.top + 6 / 10 * curWindow.height),
-                    "left": curWindow.left,
-                    "width": curWindow.width,
-                    "height": Math.round(4 / 10 * curWindow.height)
+                    type: "check_deepl"
                 },
-                function (newWindow) {
-                    ttsId = newWindow.id;
-                    ttsWindow = chrome.extension.getViews({ "windowId": ttsId })[0];
-
-                    curOptions = options;
-
-                    // Fastest timeout == 1 ms (@ options.rate = 10.0)
-                    milliseconds = 10 / curOptions.rate;
+                function (response) {
+                    console.log("tranlatedtext:%s", response.text);
+                    const translatedtext = response.text; //ここでエラーが出る．
+                    console.log("translated: %s", translatedtext);
+                    sendResponse({
+                        text: translatedtext
+                    });
+                    chrome.tabs.remove(tabids = tab.id);
                 }
             );
         });
-    } else {
-        if (areNewOptions(options)) {
-            curOptions = options;
-
-            milliseconds = 10 / curOptions.rate;
-        }
-
     }
-
-};
-
-
-chrome.contextMenus.create({
-    title: "Translation by DeepL with Shaping",
-    type: "normal",
-    contexts: ["selection"],
-    onclick: (info) => {
-        const source_text = info.selectionText
-        let target_text;
-        target_text = source_text.replace(dot, "$1 $2")
-        target_text = source_text.replace(haifun, "$1$3");
-        chrome.tabs.create({
-            url: "https://www.deepl.com/translator#en/ja/" + encodeURIComponent(target_text)
-        }
-        )
-    }
+    return true;
 });
-*/
+
+//指定されたテキストの翻訳タブを作成する．
+function get_translatedtext(target_text) {
+    console.log("call translate");
+    chrome.tabs.create(
+        {
+            url: "https://www.deepl.com/translator#ja/en/" + target_text,
+            active: false
+        }
+    );
+}
