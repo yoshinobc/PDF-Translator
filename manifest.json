@@ -17,7 +17,8 @@
             "js": [
                 "content.js"
             ],
-            "run_at": "document_start"
+            "run_at": "document_start",
+            "match_about_blank": true
         }
     ],
     "description": "Chrome extension to format and translate selected text directly from PDF files with DeepL.",
@@ -27,8 +28,7 @@
         "128": "img/translation_128.png"
     },
     "browser_action": {
-        "default_title": "Translation by DeepL for PDF",
-        "default_popup": "popup.html"
+        "name": "Click to change the icon's color"
     },
     "permissions": [
         "tabs",

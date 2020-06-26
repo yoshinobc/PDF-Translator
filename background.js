@@ -1,12 +1,14 @@
+let isOn = false;
+
 // ブラウザがPDFファイルを開こうとした時に，PDF.jsで変換されたhtmlページに遷移する．
 chrome.webNavigation.onBeforeNavigate.addListener(details => {
     console.log("add listner: %s", details.url);
-    if (details.url.endsWith(".pdf")) {
+    if (details.url.endsWith(".pdf") && isOn) {
         if (details.url.startsWith("file:///")) {
             chrome.extension.isAllowedFileSchemeAccess(function (isAllowedAccess) {
                 if (!isAllowedAccess) {
                     chrome.tabs.update(details.tabId, {
-                        url: chrome.runtime.getURL("/open_extensions_page.html")
+                        url: chrome.runtime.getURL("allow_access_to_file.html")
                     });
                 }
             });
@@ -33,15 +35,15 @@ const call_check_deepl = function (tab, sendResponse) {
                 console.log("translated: %s", translatedtext);
                 if (translatedtext == "") {
                     console.log("background if");
-                    setTimeout(call_check_deepl(tab, sendResponse), 1 * 1000);
+                    setTimeout(call_check_deepl(tab, sendResponse), 1 * 100);
                 }
                 else {
                     console.log("background sendResponse:%s", translatedtext);
                     sendResponse({
                         text: translatedtext
                     });
+                    chrome.tabs.remove(tabids = tab.id);
                 }
-                //chrome.tabs.remove(tabids = tab.id);
             }
         )
     }, 500);
@@ -50,7 +52,7 @@ const call_check_deepl = function (tab, sendResponse) {
 //inject.jsからget_translatedリクエストがきた時に，翻訳結果を返す
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     console.log("get translate: %s", request.type);
-    if (request.type == "get_translated") {
+    if (request.type == "get_translated" && isOn) {
         console.log("call translate");
         const target_text = request.text;
         chrome.tabs.create(
@@ -65,3 +67,15 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     return true;
 });
 
+function updateIcon() {
+    if (isOn) {
+        chrome.browserAction.setIcon({ path:"img/translation_off_16.png"});
+        isOn = false;
+    }
+    else {
+        chrome.browserAction.setIcon({ path:"img/translation_16.png"});
+        isOn = true;
+    }
+}
+chrome.browserAction.onClicked.addListener(updateIcon);
+updateIcon();
