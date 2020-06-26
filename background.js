@@ -21,13 +21,10 @@ chrome.webNavigation.onBeforeNavigate.addListener(details => {
     }
 });
 
-
 //inject.jsからget_translatedリクエストがきた時に，翻訳結果を返す
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     console.log("get translate: %s", request.type);
     if (request.type == "get_translated") {
-        get_translatedtext(request.text); //タブ作成
-
         //タブが作成された時に，check_deepl(content.js)をリクエストする．
         chrome.tabs.onCreated.addListener(function (tab) {
             console.log("oncrreate");
@@ -46,6 +43,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
                 }
             );
         });
+        get_translatedtext(request.text); //タブ作成
     }
     return true;
 });

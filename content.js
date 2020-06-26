@@ -1,10 +1,11 @@
+console.log("started");
 
 const config = { attributes: true, childList: true, characterData: true, subtree: true };
 
 //check_deeplリクエストを受け取って，エレメントから翻訳結果を見てそれを返す．
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.type == "check_deepl") {
-        console.log("check deepl")
+        console.log("check deepl");
         var translatedtext = check_deepl();
         console.log("translated: %s", translatedtext);
         sendResponse({
