@@ -28,7 +28,7 @@ function translation(clickEvent) {
     if (text.length <= 1) {
         return;
     }
-    if (text.length >= 300) {
+    if (text.length >= 2000) {
         console.log("too long");
         showPanel("Too Long.", clickEvent);
         document.removeEventListener("click", translation);
@@ -45,6 +45,7 @@ function translation(clickEvent) {
             type: "get_translated",
             text: target_text
         }, function (response) {
+            console.log("inject response: %s", response.text);
             showPanel(response.text, clickEvent);
             document.removeEventListener("click", translation);
             document.addEventListener("click", removePanel);

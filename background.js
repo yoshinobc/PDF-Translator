@@ -21,40 +21,47 @@ chrome.webNavigation.onBeforeNavigate.addListener(details => {
     }
 });
 
+const call_check_deepl = function (tab, sendResponse) {
+    setTimeout(function () {
+        chrome.tabs.sendMessage(tab.id,
+            {
+                type: "check_deepl"
+            },
+            function (response) {
+                console.log("tranlatedtext:%s", response.text);
+                const translatedtext = response.text; //ここでエラーが出る．
+                console.log("translated: %s", translatedtext);
+                if (translatedtext == "") {
+                    console.log("background if");
+                    setTimeout(call_check_deepl(tab, sendResponse), 1 * 1000);
+                }
+                else {
+                    console.log("background sendResponse:%s", translatedtext);
+                    sendResponse({
+                        text: translatedtext
+                    });
+                }
+                //chrome.tabs.remove(tabids = tab.id);
+            }
+        )
+    }, 500);
+}
+
 //inject.jsからget_translatedリクエストがきた時に，翻訳結果を返す
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     console.log("get translate: %s", request.type);
     if (request.type == "get_translated") {
-        //タブが作成された時に，check_deepl(content.js)をリクエストする．
-        chrome.tabs.onCreated.addListener(function (tab) {
-            console.log("oncrreate");
-            chrome.tabs.sendMessage(tab.id,
-                {
-                    type: "check_deepl"
-                },
-                function (response) {
-                    console.log("tranlatedtext:%s", response.text);
-                    const translatedtext = response.text; //ここでエラーが出る．
-                    console.log("translated: %s", translatedtext);
-                    sendResponse({
-                        text: translatedtext
-                    });
-                    chrome.tabs.remove(tabids = tab.id);
-                }
-            );
-        });
-        get_translatedtext(request.text); //タブ作成
+        console.log("call translate");
+        const target_text = request.text;
+        chrome.tabs.create(
+            {
+                url: "https://www.deepl.com/translator#ja/en/" + target_text,
+                active: false
+            },
+            function (tab) {
+                call_check_deepl(tab, sendResponse);
+            });
     }
     return true;
 });
 
-//指定されたテキストの翻訳タブを作成する．
-function get_translatedtext(target_text) {
-    console.log("call translate");
-    chrome.tabs.create(
-        {
-            url: "https://www.deepl.com/translator#ja/en/" + target_text,
-            active: false
-        }
-    );
-}

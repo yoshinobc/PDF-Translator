@@ -26,6 +26,10 @@
         "48": "img/translation_48.png",
         "128": "img/translation_128.png"
     },
+    "browser_action": {
+        "default_title": "Translation by DeepL for PDF",
+        "default_popup": "popup.html"
+    },
     "permissions": [
         "tabs",
         "webNavigation",
