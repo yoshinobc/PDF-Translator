@@ -30,7 +30,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
         //タブが作成された時に，check_deepl(content.js)をリクエストする．
         chrome.tabs.onCreated.addListener(function (tab) {
-            console.log("oncrreate")
+            console.log("oncrreate");
             chrome.tabs.sendMessage(tab.id,
                 {
                     type: "check_deepl"

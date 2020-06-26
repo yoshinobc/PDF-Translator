@@ -29,6 +29,7 @@ function translation(clickEvent) {
         return;
     }
     if (text.length >= 300) {
+        console.log("too long");
         showPanel("Too Long. ", clickEvent);
         document.removeEventListener("click", translation);
         document.addEventListener("click", removePanel);
@@ -68,7 +69,6 @@ function translation(clickEvent) {
     }
     request.send(null);
     */
-
     return;
 }
 document.removeEventListener("click", removePanel);
