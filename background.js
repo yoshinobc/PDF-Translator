@@ -71,7 +71,7 @@ chrome.webRequest.onHeadersReceived.addListener( function(details) {
             url = url.substring(8, url.length);
         }
         chrome.tabs.update({
-            url: chrome.runtime.getURL(`/pdf.js/web/viewer.html?file=${url}`)
+            url: chrome.runtime.getURL(`/pdf.js/web/viewer.html?file=${encodeURIComponent(url)}`)
         });
     }
 }, {
