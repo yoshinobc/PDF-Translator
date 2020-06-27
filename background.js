@@ -4,15 +4,6 @@ let isOn = false;
 chrome.webNavigation.onBeforeNavigate.addListener(details => {
     console.log("add listner: %s", details.url);
     if (details.url.endsWith(".pdf") && isOn) {
-        if (details.url.startsWith("file:///")) {
-            chrome.extension.isAllowedFileSchemeAccess(function (isAllowedAccess) {
-                if (!isAllowedAccess) {
-                    chrome.tabs.update(details.tabId, {
-                        url: chrome.runtime.getURL("allow_access_to_file.html")
-                    });
-                }
-            });
-        }
         let url = details.url;
         if (url.startsWith("file:///")) {
             url = url.substring(8, url.length);
