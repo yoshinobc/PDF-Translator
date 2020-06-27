@@ -65,11 +65,7 @@ chrome.webRequest.onHeadersReceived.addListener( function(details) {
         if (isPdfDownloadable(details)) {
             return getHeadersWithContentDispositionAttachment(details);
         }
-    //if (details.url.endsWith(".pdf") && isOn) {
         let url = details.url;
-        if (url.startsWith("file:///")) {
-            url = url.substring(8, url.length);
-        }
         chrome.tabs.update({
             url: chrome.runtime.getURL(`/pdf.js/web/viewer.html?file=${encodeURIComponent(url)}`)
         });
@@ -80,7 +76,56 @@ chrome.webRequest.onHeadersReceived.addListener( function(details) {
         ],
     types: ["main_frame", "sub_frame"],
     },
-["blocking", "responseHeaders"]);
+    ["blocking", 'responseHeaders']);
+
+chrome.webRequest.onBeforeRequest.addListener( function (details) {
+    console.log("add listner: %s", details.url);
+    if (isOn) {
+        if (isPdfDownloadable(details)) {
+            return ;
+        }
+        let url = details.url;
+        chrome.tabs.update({
+            url: chrome.runtime.getURL(`/pdf.js/web/viewer.html?file=${encodeURIComponent(url)}`)
+        });
+    }
+}, {
+    urls: [
+        'file://*/*.pdf',
+        'file://*/*.PDF',
+        ...(
+            MediaError.prototype.hasOwnProperty('message') ? [] : [
+                'ftp://*/*.pdf',
+                'ftp://*/*.PDF',
+            ]
+        ),
+    ],
+    types: ['main_frame', 'sub_frame'],
+    },
+    ["blocking"]
+);
+
+chrome.extension.isAllowedFileSchemeAccess(function (isAllowedAccess) {
+    if (isAllowedAccess) {
+        return;
+    }
+    chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
+        if (details.frameId === 0 && !isPdfDownloadable(details)) {
+            chrome.tabs.update(details.tabId, {
+                url: getViewerURL(details.url),
+            });
+        }
+    }, {
+            url: [{
+                urlPrefix: 'file://',
+                pathSuffix: '.pdf',
+            }, {
+                urlPrefix: 'file://',
+                pathSuffix: '.PDF',
+            }],
+        });
+});
+
 
 const call_check_deepl = function (tab, sendResponse) {
     setTimeout(function () {

@@ -36,6 +36,8 @@
         "activeTab",
         "webRequest",
         "<all_urls>",
-        "webRequestBlocking"
+        "webRequestBlocking",
+        "file:///*/*",
+        "fileBrowserHandler"
     ]
 }
