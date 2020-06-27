@@ -3,8 +3,12 @@ const b = /(\.)([A-Z])/g;
 //(alphabet)-(alphabet)を検出する.
 const haifun = RegExp("([a-zA-Z])(-)([a-zA-Z])", "g");
 //パネルを消す
-function removePanel() {
-    console.log("remove panel");
+function removePanel(clickEvent) {
+    const e = document.querySelector("div.text-panel");
+    const eRect = e.getBoundingClientRect();
+    if ((eRect.left <= clickEvent.pageX && clickEvent.pageX <= eRect.left + parseInt(window.getComputedStyle(e).width)) && eRect.top <= clickEvent.pageY && clickEvent.pageY <= eRect.top + parseInt(window.getComputedStyle(e).height)) {
+        return;
+    }
     document.querySelector("div.text-panel").remove();
     document.removeEventListener("click", removePanel);
     document.addEventListener("click", translation);
