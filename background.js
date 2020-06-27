@@ -46,7 +46,7 @@ const call_check_deepl = function (tab, sendResponse) {
                 }
             }
         )
-    }, 500);
+    }, 1 * 1000);
 }
 
 //inject.jsからget_translatedリクエストがきた時に，翻訳結果を返す

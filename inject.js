@@ -1,8 +1,7 @@
 //.(Capital Alphabet)を検出する.
-const b = RegExp("(\.)([A-Z])", "g");
+const b = /(\.)([A-Z])/g;
 //(alphabet)-(alphabet)を検出する.
 const haifun = RegExp("([a-zA-Z])(-)([a-zA-Z])", "g");
-
 //パネルを消す
 function removePanel() {
     console.log("remove panel");
