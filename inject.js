@@ -19,10 +19,10 @@ function removePanel(clickEvent) {
 function showPanel(text, clickEvent) {
     let panel = document.createElement("div");
     panel.setAttribute("class", "text-panel");
-    panel.setAttribute("style", "top:"+clickEvent.pageY+"px;left:"+clickEvent.pageX+"px;");
+    panel.setAttribute("contenteditable", true);
+    panel.setAttribute("style", "top:"+clickEvent.pageY+"px;left:"+clickEvent.pageX+"px;width:550px;");
     panel.innerHTML = text;
     document.firstElementChild.appendChild(panel);
-    console.log("show panel");
 };
 
 function translation(clickEvent) {
