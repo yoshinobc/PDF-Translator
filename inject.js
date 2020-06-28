@@ -1,5 +1,7 @@
 const b = /(\.)([A-Z])/g;
 const haifun = RegExp("([a-zA-Z])(-)([a-zA-Z])", "g");
+const koron = RegExp(":","g");
+const semikoron = RegExp(";","g");
 
 function removePanel(clickEvent) {
     const e = document.querySelector("div.text-panel");
@@ -51,6 +53,8 @@ function translation(clickEvent) {
     target_text = text.replace(/\r?\n/g, "");
     target_text = target_text.replace(b, "$1 $2");
     target_text = target_text.replace(haifun, "$1$3");
+    target_text = target_text.replace(koron, ":\n");
+    target_text = target_text.replace(semikoron, ";\n");
     target_text = encodeURIComponent(target_text);
     console.log("target_text:%s", target_text);
     chrome.runtime.sendMessage(
