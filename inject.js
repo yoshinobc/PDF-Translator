@@ -3,8 +3,13 @@ const haifun = RegExp("([a-zA-Z])(-)([a-zA-Z])", "g");
 
 function removePanel(clickEvent) {
     const e = document.querySelector("div.text-panel");
-    const eRect = e.getBoundingClientRect();
-    if ((eRect.left <= clickEvent.pageX && clickEvent.pageX <= eRect.left + parseInt(window.getComputedStyle(e).width)) && eRect.top <= clickEvent.pageY && clickEvent.pageY <= eRect.top + parseInt(window.getComputedStyle(e).height)) {
+    try {
+        const eRect = e.getBoundingClientRect();
+        if ((eRect.left <= clickEvent.pageX && clickEvent.pageX <= eRect.left + parseInt(window.getComputedStyle(e).width)) && eRect.top <= clickEvent.pageY && clickEvent.pageY <= eRect.top + parseInt(window.getComputedStyle(e).height)) {
+            return;
+        }
+    }
+    catch (e) {
         return;
     }
     document.querySelector("div.text-panel").remove();
