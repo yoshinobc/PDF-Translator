@@ -14,3 +14,4 @@ PDFファイルから直接選択したテキストを自動で補正してDeepL
 ![翻訳！](img/desc2.png)
 
 Icon made by Pixel perfect from www.flaticon.com
+This implementation includes [pdf.js](https://github.com/mozilla/pdf.js).

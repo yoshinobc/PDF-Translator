@@ -1783,8 +1783,9 @@
     exports.PDFViewerApplication = PDFViewerApplication;
     var validateFileURL;
     {
+      //add
       var HOSTED_VIEWER_ORIGINS = ['null', 'http://mozilla.github.io', 'https://mozilla.github.io'];
-
+      
       validateFileURL = function validateFileURL(file) {
         if (file === undefined) {
           return;
@@ -1792,7 +1793,7 @@
 
         try {
           var viewerOrigin = new URL(window.location.href).origin || 'null';
-
+i
           if (HOSTED_VIEWER_ORIGINS.includes(viewerOrigin)) {
             return;
           }
