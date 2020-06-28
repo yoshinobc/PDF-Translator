@@ -20,7 +20,19 @@ function showPanel(text, clickEvent) {
     let panel = document.createElement("div");
     panel.setAttribute("class", "text-panel");
     panel.setAttribute("contenteditable", true);
-    panel.setAttribute("style", "top:"+clickEvent.pageY+"px;left:"+clickEvent.pageX+"px;width:550px;");
+    const row = text.length / 32;
+    if (row >= 2) {
+        if (clickEvent.pageY + row * 27 >= window.innerHeight) {
+            const top = clickEvent.pageY - row * 27;
+            panel.setAttribute("style", "top:" + top + "px;left:" + clickEvent.pageX + "px;width:550px;");
+        }
+        else {
+            panel.setAttribute("style", "top:" + clickEvent.pageY + "px;left:" + clickEvent.pageX + "px;width:550px;");
+        }
+    }
+    else {
+        panel.setAttribute("style", "top:" + clickEvent.pageY + "px;left:" + clickEvent.pageX + "px;");
+    }
     panel.innerHTML = text;
     document.firstElementChild.appendChild(panel);
 };
