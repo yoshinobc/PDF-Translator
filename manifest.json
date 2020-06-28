@@ -38,6 +38,5 @@
         "<all_urls>",
         "webRequestBlocking",
         "file:///*/*",
-        "fileBrowserHandler"
     ]
 }

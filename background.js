@@ -1,4 +1,5 @@
 let isOn = false;
+
 function isPdfDownloadable(details) {
     if (details.url.includes('pdfjs.action=download')) {
         return true;
@@ -57,8 +58,6 @@ function isPdfFile(details) {
     return false;
 }
 
-// ブラウザがPDFファイルを開こうとした時に，PDF.jsで変換されたhtmlページに遷移する．
-//chrome.webNavigation.onBeforeNavigate.addListener(details => {
 chrome.webRequest.onHeadersReceived.addListener( function(details) {
     console.log("add listner: %s", details.url);
     if (isPdfFile(details) && isOn) {
@@ -153,7 +152,6 @@ const call_check_deepl = function (tab, sendResponse) {
     }, 1 * 1000);
 }
 
-//inject.jsからget_translatedリクエストがきた時に，翻訳結果を返す
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     console.log("get translate: %s", request.type);
     if (request.type == "get_translated" && isOn) {

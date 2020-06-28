@@ -10,7 +10,6 @@ function removePanel(clickEvent) {
         return;
     }
     document.querySelector("div.text-panel").remove();
-    document.removeEventListener("click", removePanel);
     document.addEventListener("click", translation);
 };
 
@@ -35,7 +34,6 @@ function translation(clickEvent) {
         console.log("too long");
         showPanel("Too Long.", clickEvent);
         document.removeEventListener("click", translation);
-        document.addEventListener("click", removePanel);
         return;
     }
     target_text = text.replace(/\r?\n/g, "");
@@ -51,7 +49,6 @@ function translation(clickEvent) {
             console.log("inject response: %s", response.text);
             showPanel(response.text, clickEvent);
             document.removeEventListener("click", translation);
-            document.addEventListener("click", removePanel);
         }
     )
     /*
@@ -77,5 +74,5 @@ function translation(clickEvent) {
     */
     return;
 }
-document.removeEventListener("click", removePanel);
 document.addEventListener("click", translation);
+document.addEventListener("click", removePanel);
