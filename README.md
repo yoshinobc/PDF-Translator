@@ -1,7 +1,7 @@
 # Translation by DeepL with Shaping
 
 ## 概要
-PDFファイルから直接選択したテキストを自動で補正してDeepLで翻訳するChrome拡張です．
+PDFファイルから直接選択したテキストを自動で補正してDeepLで翻訳した結果を表示するChrome拡張です．
 ## 内容
 このChrome拡張ではDeepLで綺麗な翻訳を行うための補正が3つ含まれてます．
 - 文の途中に含まれている改行を取り除く．
@@ -10,13 +10,7 @@ PDFファイルから直接選択したテキストを自動で補正してDeepL
 ## 使い方
 1. 翻訳したい文章を選択します．
 ![文章を選択](img/desc1.png)
-2. そのまま右クリックからTranslation by DeepL with Shaping
-押します．
-![右クリックから選択](img/desc2.png)
-3. 翻訳されます．
-![翻訳！](img/desc3.png)
-## 連絡先
-何かあったら連絡してください．
-pipbcmsi@gmail.com
+2. 翻訳されます．
+![翻訳！](img/desc2.png)
 
 Icon made by Pixel perfect from www.flaticon.com

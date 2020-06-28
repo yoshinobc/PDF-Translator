@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
-    "name": "Translation by DeepL with Shaping",
-    "version": "2.2.0",
+    "name": "DeepL Translator for PDF",
+    "version": "2.0.0",
     "background": {
         "scripts": [
             "background.js"
