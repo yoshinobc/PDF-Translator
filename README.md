@@ -1,4 +1,4 @@
-# Translation by DeepL with Shaping
+# DeepL Translator for PDF
 
 ## 概要
 PDFファイルから直接選択したテキストを自動で補正してDeepLで翻訳した結果を表示するChrome拡張です．
