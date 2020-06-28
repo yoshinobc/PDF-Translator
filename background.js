@@ -59,7 +59,6 @@ function isPdfFile(details) {
 }
 
 chrome.webRequest.onHeadersReceived.addListener( function(details) {
-    console.log("add listner: %s", details.url);
     if (isPdfFile(details) && isOn) {
         if (isPdfDownloadable(details)) {
             return getHeadersWithContentDispositionAttachment(details);
@@ -78,7 +77,6 @@ chrome.webRequest.onHeadersReceived.addListener( function(details) {
     ["blocking", 'responseHeaders']);
 
 chrome.webRequest.onBeforeRequest.addListener( function (details) {
-    console.log("add listner: %s", details.url);
     if (isOn) {
         if (isPdfDownloadable(details)) {
             return ;
@@ -133,15 +131,11 @@ const call_check_deepl = function (tab, sendResponse) {
                 type: "check_deepl"
             },
             function (response) {
-                console.log("tranlatedtext:%s", response.text);
-                const translatedtext = response.text; //ここでエラーが出る．
-                console.log("translated: %s", translatedtext);
+                const translatedtext = response.text;
                 if (translatedtext == "") {
-                    console.log("background if");
                     setTimeout(call_check_deepl(tab, sendResponse), 1 * 100);
                 }
                 else {
-                    console.log("background sendResponse:%s", translatedtext);
                     sendResponse({
                         text: translatedtext
                     });
@@ -153,9 +147,7 @@ const call_check_deepl = function (tab, sendResponse) {
 }
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    console.log("get translate: %s", request.type);
     if (request.type == "get_translated" && isOn) {
-        console.log("call translate");
         const target_text = request.text;
         chrome.tabs.create(
             {

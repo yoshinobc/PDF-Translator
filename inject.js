@@ -1,8 +1,6 @@
-//.(Capital Alphabet)を検出する.
 const b = /(\.)([A-Z])/g;
-//(alphabet)-(alphabet)を検出する.
 const haifun = RegExp("([a-zA-Z])(-)([a-zA-Z])", "g");
-//パネルを消す
+
 function removePanel(clickEvent) {
     const e = document.querySelector("div.text-panel");
     const eRect = e.getBoundingClientRect();
@@ -13,7 +11,6 @@ function removePanel(clickEvent) {
     document.addEventListener("click", translation);
 };
 
-//パネルをつける
 function showPanel(text, clickEvent) {
     let panel = document.createElement("div");
     panel.setAttribute("class", "text-panel");
@@ -23,7 +20,6 @@ function showPanel(text, clickEvent) {
     console.log("show panel");
 };
 
-//翻訳する．
 function translation(clickEvent) {
     const text = document.getSelection().toString();
     let target_text;
@@ -31,7 +27,6 @@ function translation(clickEvent) {
         return;
     }
     if (text.length >= 2000) {
-        console.log("too long");
         showPanel("Too Long.", clickEvent);
         document.removeEventListener("click", translation);
         return;
@@ -46,7 +41,6 @@ function translation(clickEvent) {
             type: "get_translated",
             text: target_text
         }, function (response) {
-            console.log("inject response: %s", response.text);
             showPanel(response.text, clickEvent);
             document.removeEventListener("click", translation);
         }
