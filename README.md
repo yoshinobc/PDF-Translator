@@ -11,9 +11,9 @@ PDFファイルから直接選択したテキストを自動で補正してDeepL
 
 ## 使い方
 1. 翻訳したい文章を選択します．
-![文章を選択](img/desc1.png)
+![文章を選択](img/desc_1.png)
 2. 翻訳されます．
-![翻訳！](img/desc2.png)
+![翻訳！](img/desc_2.png)
 
 
 This implementation includes [pdf.js](https://github.com/mozilla/pdf.js).
