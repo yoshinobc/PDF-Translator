@@ -33,7 +33,6 @@
     "permissions": [
         "tabs",
         "webNavigation",
-        "activeTab",
         "webRequest",
         "<all_urls>",
         "webRequestBlocking",

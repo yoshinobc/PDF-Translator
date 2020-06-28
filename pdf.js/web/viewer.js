@@ -1793,7 +1793,6 @@
 
         try {
           var viewerOrigin = new URL(window.location.href).origin || 'null';
-i
           if (HOSTED_VIEWER_ORIGINS.includes(viewerOrigin)) {
             return;
           }
