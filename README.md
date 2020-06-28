@@ -13,4 +13,7 @@ PDFファイルから直接選択したテキストを自動で補正してDeepL
 2. 翻訳されます．
 ![翻訳！](img/desc2.png)
 
+
+This implementation includes [pdf.js](https://github.com/mozilla/pdf.js).
+
 Icon made by Pixel perfect from www.flaticon.com
