@@ -45,7 +45,7 @@ function translation(clickEvent) {
     if (text.length <= 1) {
         return;
     }
-    if (text.length >= 2000) {
+    if (text.length >= 4800) {
         showPanel("Too Long.", clickEvent);
         document.removeEventListener("click", translation);
         return;
