@@ -1,19 +1,33 @@
 # DeepL Translator for PDF
 
-## 概要
-PDFファイルから直接選択したテキストを自動で補正してDeepLで翻訳した結果を表示するChrome拡張です．
-## 内容
-このChrome拡張ではDeepLで綺麗な翻訳を行うための補正が4つ含まれてます．
-- 文の途中に含まれている改行を取り除く．
-- 単語の中に含まれている"-"を取り除く．
-- "."のすぐ後に大文字のアルファベットが含まれている時にスペースを挿入する．
-- ";"と":"のすぐ後に改行を挿入する．
+## Overview
+This is a Chrome extension that automatically corrects selected text directly from a PDF file and displays the translation results at DeepL.
 
-## 使い方
-1. 翻訳したい文章を選択します．
-![文章を選択](img/desc_1.png)
-2. 翻訳されます．
-![翻訳！](img/desc_2.png)
+The following languages are supported.
+- English
+- 日本語
+- Deutsche
+- Français
+- Español
+- Português
+- Italiano
+- Nederlands
+- Polski
+- русский
+- 汉语
+
+
+This Chrome extension includes 4 corrections to produce a clean translation for DeepL.
+- Remove line breaks in the middle of a sentence.
+- Remove "-" from a word.
+- "A space is inserted immediately after ". Insert a space if there is a capital letter immediately after the ".
+- A new line is inserted immediately after ";" and ":".
+
+## How to use
+1. Select the text you want to translate.
+![select sentence](img/desc_1.png)
+2. It will be translated.
+![translation！](img/desc_2.png)
 
 
 This implementation includes [pdf.js](https://github.com/mozilla/pdf.js).
