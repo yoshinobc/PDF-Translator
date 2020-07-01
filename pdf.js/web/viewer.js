@@ -1785,7 +1785,7 @@
     {
       //add
       var HOSTED_VIEWER_ORIGINS = ['null', 'http://mozilla.github.io', 'https://mozilla.github.io'];
-      
+
       validateFileURL = function validateFileURL(file) {
         if (file === undefined) {
           return;
@@ -1806,7 +1806,7 @@
              * The one line below is modified by eskmemorial
              * in order to avoid cross-origin error.
              */
-            // throw new Error('file origin does not match viewer\'s');
+            //throw new Error('file origin does not match viewer\'s');
           }
         } catch (ex) {
           var message = ex && ex.message;

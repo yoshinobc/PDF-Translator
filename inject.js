@@ -57,15 +57,27 @@ function translation(clickEvent) {
     target_text = target_text.replace(semikoron, ";\n");
     target_text = encodeURIComponent(target_text);
     console.log("target_text:%s", target_text);
-    chrome.runtime.sendMessage(
-        {
-            type: "get_translated",
-            text: target_text
-        }, function (response) {
-            showPanel(response.text, clickEvent);
-            document.removeEventListener("click", translation);
+    chrome.storage.sync.get(null, function (items) {
+        let s_lang = items.source_language;
+        let t_lang = items.target_language;
+        if (typeof s_lang === "undefined") {
+            s_lang = "en";
         }
-    )
+        if (typeof t_lang === "undefined") {
+            t_lang = "ja";
+        }
+        chrome.runtime.sendMessage(
+            {
+                type: "get_translated",
+                s_lang: s_lang,
+                t_lang: t_lang,
+                text: target_text
+            }, function (response) {
+                showPanel(response.text, clickEvent);
+                document.removeEventListener("click", translation);
+            }
+        )
+    });
     /*
     //apiを使った翻訳．
     let request = new XMLHttpRequest();
