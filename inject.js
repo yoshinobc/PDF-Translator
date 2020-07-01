@@ -18,19 +18,45 @@ function removePanel(clickEvent) {
     document.addEventListener("click", translation);
 };
 
+function removePanelUnder(clickEvent) {
+    const e = document.querySelector("div.text-panel-under");
+    try {
+        const eRect = e.getBoundingClientRect();
+        if ((eRect.left <= clickEvent.pageX && clickEvent.pageX <= eRect.left + parseInt(window.getComputedStyle(e).width)) && eRect.top <= clickEvent.pageY && clickEvent.pageY <= eRect.top + parseInt(window.getComputedStyle(e).height)) {
+            return;
+        }
+    }
+    catch (e) {
+        return;
+    }
+    document.querySelector("div.text-panel-under").remove();
+    document.addEventListener("click", translation);
+}
+
 function showPanel(text, clickEvent) {
+    const extra = 20;
     let panel = document.createElement("div");
     panel.setAttribute("class", "text-panel");
     panel.setAttribute("contenteditable", true);
     const row = text.length / 32;
+    let top;
+    let left;
     if (row >= 2) {
         if (clickEvent.pageY + row * 27 >= window.innerHeight) {
-            const top = clickEvent.pageY - row * 27;
-            panel.setAttribute("style", "top:" + top + "px;left:" + clickEvent.pageX + "px;width:550px;");
+            top = window.innerHeight - row * 27 - extra;
         }
         else {
-            panel.setAttribute("style", "top:" + clickEvent.pageY + "px;left:" + clickEvent.pageX + "px;width:550px;");
+            top = clickEvent.pageY;
         }
+
+        if (clickEvent.pageX + 550 >= window.innerWidth) {
+            left = clickEvent.pageX - (clickEvent.pageX + 550 - window.innerWidth) - extra;
+        }
+        else {
+            left = clickEvent.pageX;
+        }
+        panel.setAttribute("style", "top:" + top + "px;left:" + left + "px;width:550px;");
+
     }
     else {
         panel.setAttribute("style", "top:" + clickEvent.pageY + "px;left:" + clickEvent.pageX + "px;");
@@ -39,6 +65,14 @@ function showPanel(text, clickEvent) {
     document.firstElementChild.appendChild(panel);
 };
 
+function showPanelUnder(text) {
+    let panel = document.createElement("div");
+    panel.setAttribute("class", "text-panel-under");
+    panel.setAttribute("contenteditable", true);
+    panel.innerHTML = text;
+    document.firstElementChild.appendChild(panel);
+}
+
 function translation(clickEvent) {
     const text = document.getSelection().toString();
     let target_text;
@@ -46,9 +80,20 @@ function translation(clickEvent) {
         return;
     }
     if (text.length >= 4800) {
-        showPanel("Too Long.", clickEvent);
-        document.removeEventListener("click", translation);
-        return;
+        chrome.storage.sync.get(null, function (items) {
+            let panel_pos = items.panel_pos;
+            if (typeof panel_pos === "undefined") {
+                panel_pos = "near";
+            }
+            if (panel_pos == "near") {
+                showPanel("Too Long.", clickEvent);
+            }
+            else {
+                showPanelUnder("Too Long.");
+            }
+            document.removeEventListener("click", translation);
+            return;
+        });
     }
     target_text = text.replace(/\r?\n/g, "");
     target_text = target_text.replace(b, "$1 $2");
@@ -73,8 +118,20 @@ function translation(clickEvent) {
                 t_lang: t_lang,
                 text: target_text
             }, function (response) {
-                showPanel(response.text, clickEvent);
-                document.removeEventListener("click", translation);
+                chrome.storage.sync.get(null, function (items) {
+                    let panel_pos = items.panel_pos;
+                    if (typeof panel_pos === "undefined") {
+                        panel_pos = "near";
+                    }
+                    if (panel_pos == "near") {
+                        showPanel(response.text, clickEvent);
+                    }
+                    else {
+                        showPanelUnder(response.text);
+                    }
+                    document.removeEventListener("click", translation);
+                    return;
+                });
             }
         )
     });
@@ -103,3 +160,5 @@ function translation(clickEvent) {
 }
 document.addEventListener("click", translation);
 document.addEventListener("click", removePanel);
+document.addEventListener("click", removePanelUnder);
+
