@@ -36,6 +36,11 @@
         "webRequest",
         "<all_urls>",
         "webRequestBlocking",
-        "file:///*/*"
-    ]
+        "file:///*/*",
+        "storage"
+    ],
+    "options_ui": {
+        "page": "option.html",
+        "chrome_style": true
+    }
 }

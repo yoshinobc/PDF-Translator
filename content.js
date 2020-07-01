@@ -4,6 +4,7 @@ const config = { attributes: true, childList: false, characterData: false, subtr
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (request.type == "check_deepl") {
         var translatedtext = check_deepl();
+        console.log("translatedtext", translatedtext);
         sendResponse({
             text: translatedtext
         });
