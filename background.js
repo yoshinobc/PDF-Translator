@@ -102,6 +102,10 @@ chrome.webRequest.onBeforeRequest.addListener( function (details) {
     ["blocking"]
 );
 
+function getViewerURL(pdf_url) {
+    return "/pdf.js/web / viewer.html"+ '?file=' + encodeURIComponent(pdf_url);
+}
+
 chrome.extension.isAllowedFileSchemeAccess(function (isAllowedAccess) {
     if (isAllowedAccess) {
         return;
