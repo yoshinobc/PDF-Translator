@@ -1,8 +1,24 @@
-
 div.text-panel {
-    position: absolute;
+    position: fixed;
     font-size: 18px;
     font-family: Arial, Helvetica, sans-serif;
     background: rgb(216, 216, 216);
     padding: 5px;
+    overflow: scroll;
+    max-height:60vh;
+}
+
+div.text-panel-under {
+    position: fixed;
+    font-size: 18px;
+    font-family: Arial, Helvetica, sans-serif;
+    width: 99vw;
+    height: auto;
+    max-height: 70vh;
+    background: white;
+    overflow: scroll;
+    bottom: 0px;
+    left: 0px;
+    border: 4px solid;
+    border-color: black;
 }

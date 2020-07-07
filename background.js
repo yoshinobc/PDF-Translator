@@ -121,20 +121,26 @@ chrome.extension.isAllowedFileSchemeAccess(function (isAllowedAccess) {
         return;
     }
     chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
-        if (details.frameId === 0 && !isPdfDownloadable(details)) {
-            chrome.tabs.update(details.tabId, {
-                url: getViewerURL(details.url),
+        chrome.storage.sync.get(null, function (items) {
+            let isOn = items.ison;
+            if (typeof isOn === "undefined") {
+                isOn = true;
+            }
+            if (details.frameId === 0 && !isPdfDownloadable(details) && isOn) {
+                chrome.tabs.update(details.tabId, {
+                    url: getViewerURL(details.url),
+                });
+            }
+        }, {
+                url: [{
+                    urlPrefix: 'file://',
+                    pathSuffix: '.pdf',
+                }, {
+                    urlPrefix: 'file://',
+                    pathSuffix: '.PDF',
+                }],
             });
-        }
-    }, {
-            url: [{
-                urlPrefix: 'file://',
-                pathSuffix: '.pdf',
-            }, {
-                urlPrefix: 'file://',
-                pathSuffix: '.PDF',
-            }],
-        });
+    })
 });
 
 
@@ -146,8 +152,8 @@ const call_check_deepl = function (tab, sendResponse) {
                 type: "check_deepl"
             },
             function (response) {
-                console.log("response");
                 const translatedtext = response.text;
+                console.log("trans",translatedtext);
                 if (translatedtext == "") {
                     setTimeout(call_check_deepl(tab, sendResponse), 1 * 100);
                 }
