@@ -55,8 +55,8 @@ function showPanel(text, clickEvent) {
         else {
             left = clickEvent.pageX;
         }
-        if (top <= 0) {
-            top = 0;
+        if (top <= 42) {
+            top = 42;
         }
         if (left <= 0) {
             left = 0;
