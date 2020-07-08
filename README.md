@@ -3,6 +3,8 @@
 ## Overview
 This is a Chrome extension that automatically corrects selected text directly from a PDF file and displays the translation results at DeepL.
 
+This is an unofficial chrome extension and we are not responsible for any disadvantages caused by this extension.
+
 The following languages are supported.
 - English
 - 日本語
