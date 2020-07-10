@@ -152,6 +152,10 @@ const call_check_deepl = function (tab, sendResponse) {
                 type: "check_deepl"
             },
             function (response) {
+                if (!response.text) {
+                    console.log("a");
+                    setTimeout(call_check_deepl(tab, sendResponse), 1 * 100);
+                }
                 const translatedtext = response.text;
                 console.log("trans",translatedtext);
                 if (translatedtext == "") {

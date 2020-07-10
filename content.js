@@ -14,5 +14,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
 function check_deepl() {
     const translated_text = document.getElementsByClassName("lmt__textarea lmt__target_textarea lmt__textarea_base_style")[0];
+    console.log("check deepl",translated_text.value);
     return translated_text.value;
 }
