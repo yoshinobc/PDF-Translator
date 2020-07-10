@@ -54,8 +54,8 @@ function showPanel(text, clickEvent) {
   let top;
   let left;
   if (row >= 2) {
-    if (clickEvent.pageY + row * 25 >= window.innerHeight) {
-      top = window.innerHeight - row * 25 - extra;
+    if (clickEvent.pageY + row * 27 >= window.innerHeight) {
+      top = window.innerHeight - row * 27 - extra;
     } else {
       top = clickEvent.pageY;
     }
