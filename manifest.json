@@ -1,46 +1,40 @@
 {
-    "manifest_version": 2,
-    "name": "DeepL Translator for PDF",
-    "version": "2.4.0",
-    "background": {
-        "scripts": [
-            "background.js"
-        ],
-        "run_at": "document_start"
-    },
-    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
-    "content_scripts": [
-        {
-            "matches": [
-                "https://www.deepl.com/*"
-            ],
-            "js": [
-                "content.js"
-            ],
-            "run_at": "document_start",
-            "match_about_blank": true
-        }
-    ],
-    "description": "Chrome extension to format and translate selected text directly from PDF files with DeepL.",
-    "icons": {
-        "16": "img/translation_16.png",
-        "48": "img/translation_48.png",
-        "128": "img/translation_128.png"
-    },
-    "browser_action": {
-        "name": "Click to change the icon's color"
-    },
-    "permissions": [
-        "tabs",
-        "webNavigation",
-        "webRequest",
-        "<all_urls>",
-        "webRequestBlocking",
-        "file:///*/*",
-        "storage"
-    ],
-    "options_ui": {
-        "page": "option.html",
-        "chrome_style": true
+  "manifest_version": 2,
+  "name": "DeepL Translator for PDF",
+  "version": "2.4.1",
+  "background": {
+    "scripts": ["background.js"],
+    "run_at": "document_start"
+  },
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "content_scripts": [
+    {
+      "matches": ["https://www.deepl.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "match_about_blank": true
     }
+  ],
+  "description": "Chrome extension to format and translate selected text directly from PDF files with DeepL.",
+  "icons": {
+    "16": "img/translation_16.png",
+    "48": "img/translation_48.png",
+    "128": "img/translation_128.png"
+  },
+  "browser_action": {
+    "name": "Click to change the icon's color"
+  },
+  "permissions": [
+    "tabs",
+    "webNavigation",
+    "webRequest",
+    "<all_urls>",
+    "webRequestBlocking",
+    "file:///*/*",
+    "storage"
+  ],
+  "options_ui": {
+    "page": "option.html",
+    "chrome_style": true
+  }
 }
