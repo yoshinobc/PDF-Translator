@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "DeepL Translator for PDF",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "background": {
     "scripts": ["background.js"],
     "run_at": "document_start"
