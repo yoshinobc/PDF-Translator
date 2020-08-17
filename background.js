@@ -163,7 +163,7 @@ const call_check_deepl = function (tab, current_time, sendResponse) {
   //console.log("diffsec", diffSecond);
   if (diffSecond >= 7) {
     sendResponse({
-      text: null,
+      text: "",
     });
     return
   }
