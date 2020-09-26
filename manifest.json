@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "PDF Translator",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "background": {
     "scripts": ["background.js"],
     "run_at": "document_start"
