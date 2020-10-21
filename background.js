@@ -193,16 +193,22 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
           active: false,
         },
         function (tab) {
-          const listener = (tabId, changeInfo) => {
-            if (tab.id !== tabId || changeInfo.status !== "complete") {
+          /* 
+           * `chrome.tabs.create()` 直後は，生成されたタブにメッセージのリスナが存在しない．
+           * リスナが存在しないタブに対して `chrome.tabs.sendMessage()` を行ってしまうと，次のエラーが発生する．
+           * > Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+           * このため，リスナが登録されたことを確認してから `chrome.tabs.sendMessage()` を行う必要がある．
+           * 生成されたタブから自発的に `ready` メッセージが送られて来れば，リスナが登録されたとわかる．
+           */
+          const listener = (message, sender) => {
+            if (message.type !== "ready" || sender.tab.id !== tab.id) {
               return;
             }
 
-            chrome.tabs.onUpdated.removeListener(listener);
+            chrome.runtime.onMessage.removeListener(listener);
             call_check_deepl(tab, sendResponse);
           }
-
-          chrome.tabs.onUpdated.addListener(listener);
+          chrome.runtime.onMessage.addListener(listener);
         }
       );
     }
