@@ -3,68 +3,34 @@ const haifun = RegExp("([a-zA-Z])(-)([a-zA-Z])", "g");
 const koron = RegExp(":", "g");
 const semikoron = RegExp(";", "g");
 
-function removePanel(clickEvent) {
-  const e = document.querySelector("div.text-panel");
-  try {
-    const eRect = e.getBoundingClientRect();
-    if (
-      eRect.left <= clickEvent.pageX &&
-      clickEvent.pageX <=
-        eRect.left + parseInt(window.getComputedStyle(e).width) &&
-      eRect.top <= clickEvent.pageY &&
-      clickEvent.pageY <=
-        eRect.top + parseInt(window.getComputedStyle(e).height)
-    ) {
-      return;
-    }
-  } catch (e) {
+function removePanel(mouseEvent) {
+  const panel = document.querySelector("div.text-panel, div.text-panel-under");
+  if (panel === null || mouseEvent.path.includes(panel)) {
     return;
   }
-  document.querySelector("div.text-panel").remove();
-  document.addEventListener("click", translation);
+  panel.remove();
 }
 
-function removePanelUnder(clickEvent) {
-  const e = document.querySelector("div.text-panel-under");
-  try {
-    const eRect = e.getBoundingClientRect();
-    if (
-      eRect.left <= clickEvent.pageX &&
-      clickEvent.pageX <=
-        eRect.left + parseInt(window.getComputedStyle(e).width) &&
-      eRect.top <= clickEvent.pageY &&
-      clickEvent.pageY <=
-        eRect.top + parseInt(window.getComputedStyle(e).height)
-    ) {
-      return;
-    }
-  } catch (e) {
-    return;
-  }
-  document.querySelector("div.text-panel-under").remove();
-  document.addEventListener("click", translation);
-}
-
-function showPanel(text, clickEvent) {
+function showPanel(text, mouseEvent) {
   const extra = 20;
-  let panel = document.createElement("div");
+  const panel = document.createElement("div");
   panel.setAttribute("class", "text-panel");
   panel.setAttribute("contenteditable", true);
   const row = text.length / 32;
   let top;
   let left;
   if (row >= 2) {
-    if (clickEvent.pageY + row * 27 >= window.innerHeight) {
+    if (mouseEvent.pageY + row * 27 >= window.innerHeight) {
       top = window.innerHeight - row * 27 - extra;
     } else {
-      top = clickEvent.pageY;
+      top = mouseEvent.pageY;
     }
 
-    if (clickEvent.pageX + 550 >= window.innerWidth) {
+    if (mouseEvent.pageX + 550 >= window.innerWidth) {
       left =
-        clickEvent.pageX - (clickEvent.pageX + 550 - window.innerWidth) - extra;
+        mouseEvent.pageX - (mouseEvent.pageX + 550 - window.innerWidth) - extra;
     } else {
-      left = clickEvent.pageX;
+      left = mouseEvent.pageX;
     }
     if (top <= 42) {
       top = 42;
@@ -79,10 +45,10 @@ function showPanel(text, clickEvent) {
   } else {
     panel.setAttribute(
       "style",
-      "top:" + clickEvent.pageY + "px;left:" + clickEvent.pageX + "px;"
+      "top:" + mouseEvent.pageY + "px;left:" + mouseEvent.pageX + "px;"
     );
   }
-  panel.innerHTML = text;
+  panel.innerText = text;
   document.firstElementChild.appendChild(panel);
 }
 
@@ -94,7 +60,11 @@ function showPanelUnder(text) {
   document.firstElementChild.appendChild(panel);
 }
 
-function translation(clickEvent) {
+function translation(mouseEvent) {
+  const panel = document.querySelector("div.text-panel, div.text-panel-under");
+  if (panel !== null && mouseEvent.path.includes(panel)) {
+    return;
+  }
   const text = document.getSelection().toString();
   let target_text;
   if (text.length <= 1) {
@@ -107,12 +77,11 @@ function translation(clickEvent) {
         panel_pos = "near";
       }
       if (panel_pos == "near") {
-        showPanel("Too Long.", clickEvent);
+        showPanel("Too Long.", mouseEvent);
       } else {
         showPanelUnder("Too Long.");
       }
     });
-    document.removeEventListener("click", translation);
     return;
   }
   target_text = text.replace(/\r?\n/g, "");
@@ -144,12 +113,10 @@ function translation(clickEvent) {
             panel_pos = "near";
           }
           if (panel_pos == "near") {
-            showPanel(response.text, clickEvent);
+            showPanel(response.text, mouseEvent);
           } else {
             showPanelUnder(response.text);
           }
-          document.removeEventListener("click", translation);
-          return;
         });
       }
     );
@@ -177,6 +144,5 @@ function translation(clickEvent) {
     */
   return;
 }
-document.addEventListener("click", translation);
-document.addEventListener("click", removePanel);
-document.addEventListener("click", removePanelUnder);
+document.addEventListener("mouseup", translation);
+document.addEventListener("mousedown", removePanel);

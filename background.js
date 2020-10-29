@@ -155,37 +155,18 @@ chrome.extension.isAllowedFileSchemeAccess(function (isAllowedAccess) {
 });
 
 
-const call_check_deepl = function (tab, current_time, sendResponse) {
-  //console.log("call check deepl");
-  const now_time = new Date();
-  const diff = now_time.getTime() - current_time.getTime();
-  const diffSecond = Math.floor(diff / 1000);
-  //console.log("diffsec", diffSecond);
-  if (diffSecond >= 7) {
-    sendResponse({
-      text: "",
-    });
-    return
-  }
+const call_check_deepl = function (tab, sendResponse) {
   chrome.tabs.sendMessage(
     tab.id,
     {
       type: "check_deepl",
     },
     function (response) {
-      if (response) {
-        const translatedtext = response;
-        if (translatedtext != "") {
-          sendResponse({
-            text: translatedtext,
-          });
-          chrome.tabs.remove((tabids = tab.id));
-        } else {
-          setTimeout(call_check_deepl(tab, current_time, sendResponse), 1000);
-        }
-      } else {
-        setTimeout(call_check_deepl(tab, current_time, sendResponse), 1000);
-      }
+      const translatedtext = response;
+      sendResponse({
+        text: translatedtext,
+      });
+      chrome.tabs.remove(tab.id);
     }
   );
 };
@@ -200,7 +181,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       const target_text = request.text.replace(/%2F/g, "%5C%2F"); //added
       const s_lang = request.s_lang;
       const t_lang = request.t_lang;
-      const current_time = new Date();
       chrome.tabs.create(
         {
           url:
@@ -213,7 +193,22 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
           active: false,
         },
         function (tab) {
-          call_check_deepl(tab,current_time, sendResponse);
+          /* 
+           * `chrome.tabs.create()` 直後は，生成されたタブにメッセージのリスナが存在しない．
+           * リスナが存在しないタブに対して `chrome.tabs.sendMessage()` を行ってしまうと，次のエラーが発生する．
+           * > Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
+           * このため，リスナが登録されたことを確認してから `chrome.tabs.sendMessage()` を行う必要がある．
+           * 生成されたタブから自発的に `ready` メッセージが送られて来れば，リスナが登録されたとわかる．
+           */
+          const listener = (message, sender) => {
+            if (message.type !== "ready" || sender.tab.id !== tab.id) {
+              return;
+            }
+
+            chrome.runtime.onMessage.removeListener(listener);
+            call_check_deepl(tab, sendResponse);
+          }
+          chrome.runtime.onMessage.addListener(listener);
         }
       );
     }
