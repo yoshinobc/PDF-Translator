@@ -8,7 +8,7 @@ async function check_deepl() {
     const target = document.getElementsByClassName(
       "lmt__textarea lmt__target_textarea lmt__textarea_base_style"
     )[0];
-    if (target && target.value.length > 0) {
+    if (target && target.value.length > 1) {
       return target.value;
     }
 

@@ -2,6 +2,7 @@ const b = /(\.)([A-Z])/g;
 const haifun = RegExp("([a-zA-Z])(-)([a-zA-Z])", "g");
 const koron = RegExp(":", "g");
 const semikoron = RegExp(";", "g");
+var tablist = [];
 
 function removePanel(mouseEvent) {
   const panel = document.querySelector("div.text-panel, div.text-panel-under");
@@ -9,6 +10,10 @@ function removePanel(mouseEvent) {
     return;
   }
   panel.remove();
+  while (tablist.length > 0) {
+    const removetabid = tablist.shift();
+    chrome.tabs.remove(removetabid);
+  }
 }
 
 function showPanel(text, mouseEvent) {
@@ -117,6 +122,8 @@ function translation(mouseEvent) {
           } else {
             showPanelUnder(response.text);
           }
+          tablist.push(response.tabid);
+          //chrome.tabs.remove(response.tabid);
         });
       }
     );

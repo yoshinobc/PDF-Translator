@@ -163,10 +163,12 @@ const call_check_deepl = function (tab, sendResponse) {
     },
     function (response) {
       const translatedtext = response;
+      console.log("test" , translatedtext)
       sendResponse({
         text: translatedtext,
+        tabid: tab.id,
       });
-      chrome.tabs.remove(tab.id);
+      //chrome.tabs.remove(tab.id);
     }
   );
 };
@@ -193,7 +195,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
           active: false,
         },
         function (tab) {
-          /* 
+          /*
            * `chrome.tabs.create()` 直後は，生成されたタブにメッセージのリスナが存在しない．
            * リスナが存在しないタブに対して `chrome.tabs.sendMessage()` を行ってしまうと，次のエラーが発生する．
            * > Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
