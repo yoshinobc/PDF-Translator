@@ -5,12 +5,14 @@ function save_options() {
   var source_lang = document.getElementById("s_lang").value;
   var target_lang = document.getElementById("t_lang").value;
   var panel_pos = document.getElementById("panel_pos").value;
+  var combination = document.getElementById("combination").value;
 
   // chromeアカウントと紐づくストレージに保存
   chrome.storage.sync.set({
     source_language: source_lang,
     target_language: target_lang,
-    panel_pos: panel_pos
+    panel_pos: panel_pos,
+    combination: combination
   }, function() {
     // 保存できたら、画面にメッセージを表示(0.75秒だけ)
     var status = document.getElementById("status");
@@ -27,13 +29,14 @@ function restore_options() {
   chrome.storage.sync.get({
     source_language: "en",
     target_language: "ja",
-    panel_pos : "near"
-
+    panel_pos : "near",
+    combination: "empty"
   // 保存された値があったら、それを使う
   }, function(items) {
     document.getElementById("s_lang").value = items.source_language;
     document.getElementById("t_lang").value = items.target_language;
     document.getElementById("panel_pos").value = items.panel_pos;
+    document.getElementById("combination").value = items.combination;
   });
 }
 

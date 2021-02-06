@@ -60,7 +60,30 @@ function showPanelUnder(text) {
   document.firstElementChild.appendChild(panel);
 }
 
-function translation(mouseEvent) {
+function getCombinaitonOption() {
+  return new Promise( (resolve) => {
+    chrome.storage.sync.get("combination", (item) => {
+        resolve(item["combination"]);
+    });
+    
+  });
+}
+
+async function translation(mouseEvent) {
+  let combination = await getCombinaitonOption();
+  if (combination === "ctrl") {
+    if (!mouseEvent.ctrlKey) return;
+  } 
+  else if (combination === "alt") {
+    if (!mouseEvent.altKey) return;
+  } 
+  else if (combination === "command") {
+    if (!mouseEvent.metaKey) return;
+  }
+  else if (combination === "shift") {
+    if (!mouseEvent.shiftKey) return;
+  }
+
   const panel = document.querySelector("div.text-panel, div.text-panel-under");
   if (panel !== null && mouseEvent.path.includes(panel)) {
     return;
