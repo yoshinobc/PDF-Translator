@@ -68,7 +68,7 @@ chrome.webRequest.onHeadersReceived.addListener(
           return getHeadersWithContentDispositionAttachment(details);
         }
         let url = details.url;
-        chrome.tabs.update({
+        chrome.tabs.update(details.tabId, {
           url: chrome.runtime.getURL(
             `/pdf.js/web/viewer.html?file=${encodeURIComponent(url)}`
           ),
