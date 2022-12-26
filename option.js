@@ -2,23 +2,23 @@
 function save_options() {
 
   // 設定値を変数に格納
-  var source_lang = document.getElementById("s_lang").value;
-  var target_lang = document.getElementById("t_lang").value;
-  var panel_pos = document.getElementById("panel_pos").value;
-  var combination = document.getElementById("combination").value;
+  var sourceLang = document.getElementById('sourceLang').value;
+  var targetLang = document.getElementById('targetLang').value;
+  var panelPos = document.getElementById('panelPos').value;
+  var combination = document.getElementById('combination').value;
 
   // chromeアカウントと紐づくストレージに保存
   chrome.storage.sync.set({
-    source_language: source_lang,
-    target_language: target_lang,
-    panel_pos: panel_pos,
+    sourceLanguage: sourceLang,
+    targetLanguage: targetLang,
+    panelPos: panelPos,
     combination: combination
   }, function() {
     // 保存できたら、画面にメッセージを表示(0.75秒だけ)
-    var status = document.getElementById("status");
-    status.textContent = "Options saved.";
+    var status = document.getElementById('status');
+    status.textContent = 'Options saved.';
     setTimeout(function() {
-      status.textContent = "";
+      status.textContent = '';
     }, 750);
   });
 }
@@ -27,19 +27,19 @@ function save_options() {
 function restore_options() {
   // デフォルト値は、ここで設定する
   chrome.storage.sync.get({
-    source_language: "en",
-    target_language: "ja",
-    panel_pos : "near",
-    combination: "empty"
+    sourceLanguage: 'en',
+    targetLanguage: 'ja',
+    panelPos : 'near',
+    combination: 'empty'
   // 保存された値があったら、それを使う
   }, function(items) {
-    document.getElementById("s_lang").value = items.source_language;
-    document.getElementById("t_lang").value = items.target_language;
-    document.getElementById("panel_pos").value = items.panel_pos;
-    document.getElementById("combination").value = items.combination;
+    document.getElementById('sourceLang').value = items.sourceLanguage;
+    document.getElementById('targetLang').value = items.targetLanguage;
+    document.getElementById('panelPos').value = items.panelPos;
+    document.getElementById('combination').value = items.combination;
   });
 }
 
 // 画面表示と保存ボタンのイベントを設定
-document.addEventListener("DOMContentLoaded", restore_options);
-document.getElementById("save").addEventListener("click", save_options);
+document.addEventListener('DOMContentLoaded', restore_options);
+document.getElementById('save').addEventListener('click', save_options);

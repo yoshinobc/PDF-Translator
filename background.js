@@ -1,31 +1,31 @@
 function isPdfDownloadable(details) {
-  if (details.url.includes("pdfjs.action=download")) {
+  if (details.url.includes('pdfjs.action=download')) {
     return true;
   }
 }
 
-function getHeaderFromHeaders(headers, headerName) {
-  for (var i = 0; i < headers.length; ++i) {
+function getHeaderByName(headers, headerName) {
+  for (var i = 0; i < headers.length; i++) {
     var header = headers[i];
     if (header.name.toLowerCase() === headerName) {
       return header;
     }
   }
-  return undefined;
+  return null;
 }
 
 function getHeadersWithContentDispositionAttachment(details) {
-  var headers = details.responseHeaders;
-  var cdHeader = getHeaderFromHeaders(headers, "content-disposition");
+  let headers = details.responseHeaders;
+  let cdHeader = getHeaderByName(headers, 'content-disposition');
   if (!cdHeader) {
     cdHeader = {
-      name: "Content-Disposition",
+      name: 'Content-Disposition',
     };
     headers.push(cdHeader);
   }
 
   if (!/^attachment/i.test(cdHeader.value)) {
-    cdHeader.value = "attachment" + cdHeader.value.replace(/^[^;]+/i, "");
+    cdHeader.value = 'attachment' + cdHeader.value.replace(/^[^;]+/i, '');
     return {
       responseHeaders: headers,
     };
@@ -34,19 +34,19 @@ function getHeadersWithContentDispositionAttachment(details) {
 }
 
 function isPdfFile(details) {
-  var header = getHeaderFromHeaders(details.responseHeaders, "content-type");
+  var header = getHeaderByName(details.responseHeaders, 'content-type');
   if (header) {
-    var headerValue = header.value.toLowerCase().split(";", 1)[0].trim();
-    if (headerValue === "application/pdf") {
+    var headerValue = header.value.toLowerCase().split(';', 1)[0].trim();
+    if (headerValue === 'application/pdf') {
       return true;
     }
-    if (headerValue === "application/octet-stream") {
-      if (details.url.toLowerCase().indexOf(".pdf") > 0) {
+    if (headerValue === 'application/octet-stream') {
+      if (details.url.toLowerCase().indexOf('.pdf') > 0) {
         return true;
       }
-      var cdHeader = getHeaderFromHeaders(
+      var cdHeader = getHeaderByName(
         details.responseHeaders,
-        "content-disposition"
+        'content-disposition'
       );
       if (cdHeader && /\.pdf(["']|$)/i.test(cdHeader.value)) {
         return true;
@@ -58,12 +58,12 @@ function isPdfFile(details) {
 
 chrome.webRequest.onHeadersReceived.addListener(
   function (details) {
-    chrome.storage.sync.get(null, function (items) {
+    chrome.storage.sync.get('ison', function (items) {
       let isOn = items.ison;
-      if (typeof isOn === "undefined") {
+      if (typeof isOn === 'undefined') {
         isOn = true;
       }
-      if (isPdfFile(details) && isOn) {
+      if (isOn && isPdfFile(details)) {
         if (isPdfDownloadable(details)) {
           return getHeadersWithContentDispositionAttachment(details);
         }
@@ -77,17 +77,17 @@ chrome.webRequest.onHeadersReceived.addListener(
     });
   },
   {
-    urls: ["<all_urls>"],
-    types: ["main_frame", "sub_frame"],
+    urls: ['<all_urls>'],
+    types: ['main_frame', 'sub_frame'],
   },
-  ["blocking", "responseHeaders"]
+  ['blocking', 'responseHeaders']
 );
 
 chrome.webRequest.onBeforeRequest.addListener(
   function (details) {
     chrome.storage.sync.get(null, function (items) {
       let isOn = items.ison;
-      if (typeof isOn === "undefined") {
+      if (typeof isOn === 'undefined') {
         isOn = true;
       }
       if (isOn) {
@@ -105,19 +105,19 @@ chrome.webRequest.onBeforeRequest.addListener(
   },
   {
     urls: [
-      "file://*/*.pdf",
-      "file://*/*.PDF",
-      ...(MediaError.prototype.hasOwnProperty("message")
+      'file://*/*.pdf',
+      'file://*/*.PDF',
+      ...(MediaError.prototype.hasOwnProperty('message')
         ? []
-        : ["ftp://*/*.pdf", "ftp://*/*.PDF"]),
+        : ['ftp://*/*.pdf', 'ftp://*/*.PDF']),
     ],
-    types: ["main_frame", "sub_frame"],
+    types: ['main_frame', 'sub_frame'],
   },
-  ["blocking"]
+  ['blocking']
 );
 
-function getViewerURL(pdf_url) {
-  return "/pdf.js/web / viewer.html" + "?file=" + encodeURIComponent(pdf_url);
+function getViewerURL(pdfUrl) {
+  return '/pdf.js/web / viewer.html' + '?file=' + encodeURIComponent(pdfUrl);
 }
 
 chrome.extension.isAllowedFileSchemeAccess(function (isAllowedAccess) {
@@ -129,7 +129,7 @@ chrome.extension.isAllowedFileSchemeAccess(function (isAllowedAccess) {
       null,
       function (items) {
         let isOn = items.ison;
-        if (typeof isOn === "undefined") {
+        if (typeof isOn === 'undefined') {
           isOn = true;
         }
         if (details.frameId === 0 && !isPdfDownloadable(details) && isOn) {
@@ -141,12 +141,12 @@ chrome.extension.isAllowedFileSchemeAccess(function (isAllowedAccess) {
       {
         url: [
           {
-            urlPrefix: "file://",
-            pathSuffix: ".pdf",
+            urlPrefix: 'file://',
+            pathSuffix: '.pdf',
           },
           {
-            urlPrefix: "file://",
-            pathSuffix: ".PDF",
+            urlPrefix: 'file://',
+            pathSuffix: '.PDF',
           },
         ],
       }
@@ -155,11 +155,11 @@ chrome.extension.isAllowedFileSchemeAccess(function (isAllowedAccess) {
 });
 
 
-const call_check_deepl = function (tab, sendResponse) {
+const callCheckDeepl = function (tab, sendResponse) {
   chrome.tabs.sendMessage(
     tab.id,
     {
-      type: "check_deepl",
+      type: 'check_deepl',
     },
     function (response) {
       const translatedtext = response;
@@ -174,26 +174,26 @@ const call_check_deepl = function (tab, sendResponse) {
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   chrome.storage.sync.get(null, function (items) {
     let isOn = items.ison;
-    if (typeof isOn === "undefined") {
+    if (typeof isOn === 'undefined') {
       isOn = true;
     }
-    if (request.type == "get_translated" && isOn) {
-      const target_text = request.text.replace(/%2F/g, "%5C%2F"); //added
-      const s_lang = request.s_lang;
-      const t_lang = request.t_lang;
+    if (request.type == 'get_translated' && isOn) {
+      const targetText = request.text.replace(/%2F/g, '%5C%2F'); //added
+      const sourceLang = request.sourceLang;
+      const targetLang = request.targetLang;
       chrome.tabs.create(
         {
           url:
-            "https://www.deepl.com/translator#" +
-            s_lang +
-            "/" +
-            t_lang +
-            "/" +
-            target_text,
+            'https://www.deepl.com/translator#' +
+            sourceLang +
+            '/' +
+            targetLang +
+            '/' +
+            targetText,
           active: false,
         },
         function (tab) {
-          /* 
+          /*
            * `chrome.tabs.create()` 直後は，生成されたタブにメッセージのリスナが存在しない．
            * リスナが存在しないタブに対して `chrome.tabs.sendMessage()` を行ってしまうと，次のエラーが発生する．
            * > Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
@@ -201,12 +201,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
            * 生成されたタブから自発的に `ready` メッセージが送られて来れば，リスナが登録されたとわかる．
            */
           const listener = (message, sender) => {
-            if (message.type !== "ready" || sender.tab.id !== tab.id) {
+            if (message.type !== 'ready' || sender.tab.id !== tab.id) {
               return;
             }
 
             chrome.runtime.onMessage.removeListener(listener);
-            call_check_deepl(tab, sendResponse);
+            callCheckDeepl(tab, sendResponse);
           }
           chrome.runtime.onMessage.addListener(listener);
         }
@@ -218,20 +218,20 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
 function updateIcon() {
   let isOn;
-  chrome.storage.sync.get("ison", function (items) {
+  chrome.storage.sync.get('ison', function (items) {
     if (!chrome.runtime.error) {
       isOn = items.ison;
-      if (typeof isOn === "undefined") {
+      if (typeof isOn === 'undefined') {
         isOn = true;
       }
       console.log(isOn);
       if (isOn) {
-        chrome.browserAction.setIcon({ path: "img/translation_off_16.png" });
+        chrome.browserAction.setIcon({ path: 'img/translation_off_16.png' });
         chrome.storage.sync.set({
           ison: false,
         });
       } else {
-        chrome.browserAction.setIcon({ path: "img/translation_16.png" });
+        chrome.browserAction.setIcon({ path: 'img/translation_16.png' });
         chrome.storage.sync.set({
           ison: true,
         });
