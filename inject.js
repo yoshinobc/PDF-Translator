@@ -11,7 +11,21 @@ function removePanel(mouseEvent) {
   panel.remove();
 }
 
-function showPanel(text, mouseEvent) {
+function showPanel(text, mouseEvent, color) {
+  chrome.storage.sync.get('panelPosition', function (items) {
+    let panelPosition = items.panelPosition;
+    if (typeof panelPosition === 'undefined') {
+      panelPosition = 'near';
+    }
+    if (panelPosition == 'near') {
+      showPanelNear(text, mouseEvent, color);
+    } else {
+      showPanelUnder(text, color);
+    }
+  });
+}
+
+function showPanelNear(text, mouseEvent, color) {
   const extra = 20;
   const panel = document.createElement('div');
   panel.setAttribute('class', 'text-panel');
@@ -49,14 +63,16 @@ function showPanel(text, mouseEvent) {
     );
   }
   panel.innerText = text;
+  panel.style.color = color;
   document.firstElementChild.appendChild(panel);
 }
 
-function showPanelUnder(text) {
+function showPanelUnder(text, color) {
   let panel = document.createElement('div');
   panel.setAttribute('class', 'text-panel-under');
   panel.setAttribute('contenteditable', true);
   panel.innerHTML = text;
+  panel.style.color = color;
   document.firstElementChild.appendChild(panel);
 }
 
@@ -90,23 +106,16 @@ async function translation(mouseEvent) {
   }
   const text = document.getSelection().toString();
   let targetText;
+
   if (text.length <= 0) {
     return;
   }
+
   if (text.length >= 4900) {
-    chrome.storage.sync.get('panelPosition', function (items) {
-      let panelPosition = items.panelPosition;
-      if (typeof panelPosition === 'undefined') {
-        panelPosition = 'near';
-      }
-      if (panelPosition == 'near') {
-        showPanel('Too Long.', mouseEvent);
-      } else {
-        showPanelUnder('Too Long.');
-      }
-    });
+    showPanel('Input is too long, please keep it under 5000 characters, which is the translation limit of DeepL.', mouseEvent, 'red');
     return;
   }
+
   targetText = text.replace(/\r?\n/g, '');
   targetText = targetText.replace(capital, '$1 $2');
   targetText = targetText.replace(dash, '$1$3');
@@ -130,17 +139,11 @@ async function translation(mouseEvent) {
         text: targetText,
       },
       function (response) {
-        chrome.storage.sync.get('panelPosition', function (items) {
-          let panelPosition = items.panelPosition;
-          if (typeof panelPosition === 'undefined') {
-            panelPosition = 'near';
-          }
-          if (panelPosition == 'near') {
-            showPanel(response.text, mouseEvent);
-          } else {
-            showPanelUnder(response.text);
-          }
-        });
+      if (response.text === 'Timeout has occurred. Please increase "threshold diff second" from the options screen.') {
+        showPanel(response.text, mouseEvent, 'red')
+        return;
+      }
+        showPanel(response.text, mouseEvent, 'black')
       }
     );
   });
