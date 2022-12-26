@@ -2,16 +2,16 @@
 function saveOptions() {
 
   // 設定値を変数に格納
-  var sourceLang = document.getElementById('sourceLang').value;
-  var targetLang = document.getElementById('targetLang').value;
-  var panelPos = document.getElementById('panelPos').value;
+  var sourceLanguage = document.getElementById('sourceLanguage').value;
+  var targetLanguage = document.getElementById('targetLanguage').value;
+  var panelPosition = document.getElementById('panelPosition').value;
   var combination = document.getElementById('combination').value;
 
   // chromeアカウントと紐づくストレージに保存
   chrome.storage.sync.set({
-    sourceLanguage: sourceLang,
-    targetLanguage: targetLang,
-    panelPos: panelPos,
+    sourceLanguage: sourceLanguage,
+    targetLanguage: targetLanguage,
+    panelPosition: panelPosition,
     combination: combination
   }, function() {
     // 保存できたら、画面にメッセージを表示(0.75秒だけ)
@@ -29,13 +29,13 @@ function restoreOptions() {
   chrome.storage.sync.get({
     sourceLanguage: 'en',
     targetLanguage: 'ja',
-    panelPos : 'near',
+    panelPosition : 'near',
     combination: 'empty'
   // 保存された値があったら、それを使う
   }, function(items) {
-    document.getElementById('sourceLang').value = items.sourceLanguage;
-    document.getElementById('targetLang').value = items.targetLanguage;
-    document.getElementById('panelPos').value = items.panelPos;
+    document.getElementById('sourceLanguage').value = items.sourceLanguage;
+    document.getElementById('targetLanguage').value = items.targetLanguage;
+    document.getElementById('panelPosition').value = items.panelPosition;
     document.getElementById('combination').value = items.combination;
   });
 }

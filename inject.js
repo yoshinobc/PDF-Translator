@@ -114,23 +114,23 @@ async function translation(mouseEvent) {
   targetText = targetText.replace(semicoron, ';\n');
   targetText = encodeURIComponent(targetText);
   chrome.storage.sync.get(null, function (items) {
-    let sourceLang = items.sourceLanguage;
-    let targetLang = items.targetLanguage;
-    if (typeof sourceLang === 'undefined') {
-      sourceLang = 'en';
+    let sourceLanguage = items.sourceLanguage;
+    let targetLanguage = items.targetLanguage;
+    if (typeof sourceLanguage === 'undefined') {
+      sourceLanguage = 'en';
     }
-    if (typeof targetLang === 'undefined') {
-      targetLang = 'ja';
+    if (typeof targetLanguage === 'undefined') {
+      targetLanguage = 'ja';
     }
     chrome.runtime.sendMessage(
       {
         type: 'getTranslated',
-        sourceLang: sourceLang,
-        targetLang: targetLang,
+        sourceLanguage: sourceLanguage,
+        targetLanguage: targetLanguage,
         text: targetText,
       },
       function (response) {
-        chrome.storage.sync.get(null, function (items) {
+        chrome.storage.sync.get('panelPosition', function (items) {
           let panelPosition = items.panelPosition;
           if (typeof panelPosition === 'undefined') {
             panelPosition = 'near';
