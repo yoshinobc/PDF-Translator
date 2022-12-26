@@ -177,17 +177,18 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (typeof isOn === 'undefined') {
       isOn = true;
     }
-    if (request.type == 'getTranslated' && isOn) {
+    if (isOn && request.type == 'getTranslated') {
       const targetText = request.text.replace(/%2F/g, '%5C%2F'); //added
-      const sourceLang = request.sourceLang;
-      const targetLang = request.targetLang;
+      const sourceLanguage = request.sourceLanguage;
+      const targetLanguage = request.targetLanguage;
+
       chrome.tabs.create(
         {
           url:
             'https://www.deepl.com/translator#' +
-            sourceLang +
+            sourceLanguage +
             '/' +
-            targetLang +
+            targetLanguage +
             '/' +
             targetText,
           active: false,

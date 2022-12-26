@@ -1,25 +1,33 @@
 const sleep = (time) => new Promise(resolve => setTimeout(resolve, time));
 
 async function checkDeepl() {
-  //const translated_text = document.getElementsByClassName('lmt__textarea lmt__target_textarea lmt__textarea_base_style')[0];
-  //return translated_text.value;
   const startTime = new Date();
+  let translatedResult;
+  let translatedResultInnerText;
+  let currentTime;
+  let diff;
+  let diffSecond;
   while (true) {
-    const target = document.getElementsByClassName(
+    translatedResult = document.getElementsByClassName(
       'lmt__textarea lmt__target_textarea lmt__textarea_base_style'
     )[0];
-    if (target && target.value.length > 0) {
-      return target.value;
+
+    if (typeof translatedResult !== 'undefined') {
+      translatedResultInnerText = translatedResult.innerText
+      if (typeof translatedResultInnerText !== 'undefined' && translatedResultInnerText.length > 0 && translatedResultInnerText != '\n') {
+        return translatedResultInnerText;
+      }
     }
 
-    const currentTime = new Date();
-    const diff = currentTime.getTime() - startTime.getTime();
-    const diffSecond = Math.floor(diff / 1000);
-    if (diffSecond >= 7) {
+    currentTime = new Date();
+    diff = currentTime.getTime() - startTime.getTime();
+    diffSecond = Math.floor(diff / 1000);
+    if (diffSecond >= 10) {
       return '';
     }
 
     await sleep(1000);
+
   }
 }
 
