@@ -2,6 +2,15 @@ const sleep = (time) => new Promise(resolve => setTimeout(resolve, time));
 
 async function checkDeepl() {
   const startTime = new Date();
+  let thresholdDiffSecond;
+  chrome.storage.sync.get('thresholdDiffSecond', function (items) {
+    if (typeof items.thresholdDiffSecond === 'undefined') {
+      thresholdDiffSecond = 10;
+    }
+    else {
+      thresholdDiffSecond = items.thresholdDiffSecond;
+    }
+  });
   let translatedResult;
   let translatedResultInnerText;
   let currentTime;
@@ -22,12 +31,11 @@ async function checkDeepl() {
     currentTime = new Date();
     diff = currentTime.getTime() - startTime.getTime();
     diffSecond = Math.floor(diff / 1000);
-    if (diffSecond >= 10) {
-      return '';
+
+    if (diffSecond >= thresholdDiffSecond) {
+      return 'Timeout has occurred. Please increase "threshold diff second" from the options screen.';
     }
-
     await sleep(1000);
-
   }
 }
 

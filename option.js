@@ -6,13 +6,15 @@ function saveOptions() {
   var targetLanguage = document.getElementById('targetLanguage').value;
   var panelPosition = document.getElementById('panelPosition').value;
   var combination = document.getElementById('combination').value;
+  var thresholdDiffSecond = document.getElementById('thresholdDiffSecond').value;
 
   // chromeアカウントと紐づくストレージに保存
   chrome.storage.sync.set({
     sourceLanguage: sourceLanguage,
     targetLanguage: targetLanguage,
     panelPosition: panelPosition,
-    combination: combination
+    combination: combination,
+    thresholdDiffSecond: thresholdDiffSecond
   }, function() {
     // 保存できたら、画面にメッセージを表示(0.75秒だけ)
     var status = document.getElementById('status');
@@ -23,20 +25,20 @@ function saveOptions() {
   });
 }
 
-// 設定画面で設定を表示する
+// 設定を表示する
 function restoreOptions() {
-  // デフォルト値は、ここで設定する
   chrome.storage.sync.get({
     sourceLanguage: 'en',
     targetLanguage: 'ja',
     panelPosition : 'near',
-    combination: 'empty'
-  // 保存された値があったら、それを使う
+    combination: 'empty',
+    thresholdDiffSecond: 10
   }, function(items) {
     document.getElementById('sourceLanguage').value = items.sourceLanguage;
     document.getElementById('targetLanguage').value = items.targetLanguage;
     document.getElementById('panelPosition').value = items.panelPosition;
     document.getElementById('combination').value = items.combination;
+    document.getElementById('thresholdDiffSecond').value = items.thresholdDiffSecond;
   });
 }
 
