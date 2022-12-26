@@ -89,12 +89,12 @@ async function translation(mouseEvent) {
     return;
   }
   const text = document.getSelection().toString();
-  let target_text;
+  let targetText;
   if (text.length <= 0) {
     return;
   }
   if (text.length >= 4900) {
-    chrome.storage.sync.get(null, function (items) {
+    chrome.storage.sync.get('panelPosition', function (items) {
       let panelPosition = items.panelPosition;
       if (typeof panelPosition === 'undefined') {
         panelPosition = 'near';
@@ -107,27 +107,27 @@ async function translation(mouseEvent) {
     });
     return;
   }
-  target_text = text.replace(/\r?\n/g, '');
-  target_text = target_text.replace(capital, '$1 $2');
-  target_text = target_text.replace(dash, '$1$3');
-  target_text = target_text.replace(coron, ':\n');
-  target_text = target_text.replace(semicoron, ';\n');
-  target_text = encodeURIComponent(target_text);
+  targetText = text.replace(/\r?\n/g, '');
+  targetText = targetText.replace(capital, '$1 $2');
+  targetText = targetText.replace(dash, '$1$3');
+  targetText = targetText.replace(coron, ':\n');
+  targetText = targetText.replace(semicoron, ';\n');
+  targetText = encodeURIComponent(targetText);
   chrome.storage.sync.get(null, function (items) {
-    let s_lang = items.source_language;
-    let t_lang = items.target_language;
-    if (typeof s_lang === 'undefined') {
-      s_lang = 'en';
+    let sourceLang = items.sourceLanguage;
+    let targetLang = items.targetLanguage;
+    if (typeof sourceLang === 'undefined') {
+      sourceLang = 'en';
     }
-    if (typeof t_lang === 'undefined') {
-      t_lang = 'ja';
+    if (typeof targetLang === 'undefined') {
+      targetLang = 'ja';
     }
     chrome.runtime.sendMessage(
       {
-        type: 'get_translated',
-        s_lang: s_lang,
-        t_lang: t_lang,
-        text: target_text,
+        type: 'getTranslated',
+        sourceLang: sourceLang,
+        targetLang: targetLang,
+        text: targetText,
       },
       function (response) {
         chrome.storage.sync.get(null, function (items) {

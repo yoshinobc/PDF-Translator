@@ -1,5 +1,5 @@
 // 設定画面で保存ボタンを押されたら
-function save_options() {
+function saveOptions() {
 
   // 設定値を変数に格納
   var sourceLang = document.getElementById('sourceLang').value;
@@ -24,7 +24,7 @@ function save_options() {
 }
 
 // 設定画面で設定を表示する
-function restore_options() {
+function restoreOptions() {
   // デフォルト値は、ここで設定する
   chrome.storage.sync.get({
     sourceLanguage: 'en',
@@ -41,5 +41,5 @@ function restore_options() {
 }
 
 // 画面表示と保存ボタンのイベントを設定
-document.addEventListener('DOMContentLoaded', restore_options);
-document.getElementById('save').addEventListener('click', save_options);
+document.addEventListener('DOMContentLoaded', restoreOptions);
+document.getElementById('save').addEventListener('click', saveOptions);
