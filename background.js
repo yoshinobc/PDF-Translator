@@ -159,7 +159,7 @@ const callCheckDeepl = function (tab, sendResponse) {
   chrome.tabs.sendMessage(
     tab.id,
     {
-      type: 'check_deepl',
+      type: 'checkDeepl',
     },
     function (response) {
       const translatedtext = response;
@@ -177,7 +177,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     if (typeof isOn === 'undefined') {
       isOn = true;
     }
-    if (request.type == 'get_translated' && isOn) {
+    if (request.type == 'getTranslated' && isOn) {
       const targetText = request.text.replace(/%2F/g, '%5C%2F'); //added
       const sourceLang = request.sourceLang;
       const targetLang = request.targetLang;
