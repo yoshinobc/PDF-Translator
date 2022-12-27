@@ -1,10 +1,10 @@
 const capital = /(\.)([A-Z])/g;
-const dash = RegExp('([a-zA-Z])(-)([a-zA-Z])', 'g');
-const coron = RegExp(':', 'g');
-const semicoron = RegExp(';', 'g');
+const dash = RegExp("([a-zA-Z])(-)([a-zA-Z])", "g");
+const coron = RegExp(":", "g");
+const semicoron = RegExp(";", "g");
 
 function removePanel(mouseEvent) {
-  const panel = document.querySelector('div.text-panel, div.text-panel-under');
+  const panel = document.querySelector("div.text-panel, div.text-panel-under");
   if (panel === null || mouseEvent.path.includes(panel)) {
     return;
   }
@@ -12,12 +12,12 @@ function removePanel(mouseEvent) {
 }
 
 function showPanel(text, mouseEvent, color) {
-  chrome.storage.sync.get('panelPosition', function (items) {
+  chrome.storage.sync.get("panelPosition", function (items) {
     let panelPosition = items.panelPosition;
-    if (typeof panelPosition === 'undefined') {
-      panelPosition = 'near';
+    if (typeof panelPosition === "undefined") {
+      panelPosition = "near";
     }
-    if (panelPosition == 'near') {
+    if (panelPosition == "near") {
       showPanelNear(text, mouseEvent, color);
     } else {
       showPanelUnder(text, color);
@@ -27,9 +27,9 @@ function showPanel(text, mouseEvent, color) {
 
 function showPanelNear(text, mouseEvent, color) {
   const extra = 20;
-  const panel = document.createElement('div');
-  panel.setAttribute('class', 'text-panel');
-  panel.setAttribute('contenteditable', true);
+  const panel = document.createElement("div");
+  panel.setAttribute("class", "text-panel");
+  panel.setAttribute("contenteditable", true);
   const row = text.length / 32;
   let top;
   let left;
@@ -53,13 +53,13 @@ function showPanelNear(text, mouseEvent, color) {
       left = 0;
     }
     panel.setAttribute(
-      'style',
-      'top:' + top + 'px;left:' + left + 'px;width:550px;'
+      "style",
+      "top:" + top + "px;left:" + left + "px;width:550px;"
     );
   } else {
     panel.setAttribute(
-      'style',
-      'top:' + mouseEvent.pageY + 'px;left:' + mouseEvent.pageX + 'px;'
+      "style",
+      "top:" + mouseEvent.pageY + "px;left:" + mouseEvent.pageX + "px;"
     );
   }
   panel.innerText = text;
@@ -68,39 +68,35 @@ function showPanelNear(text, mouseEvent, color) {
 }
 
 function showPanelUnder(text, color) {
-  let panel = document.createElement('div');
-  panel.setAttribute('class', 'text-panel-under');
-  panel.setAttribute('contenteditable', true);
+  let panel = document.createElement("div");
+  panel.setAttribute("class", "text-panel-under");
+  panel.setAttribute("contenteditable", true);
   panel.innerHTML = text;
   panel.style.color = color;
   document.firstElementChild.appendChild(panel);
 }
 
 function getCombinationOption() {
-  return new Promise( (resolve) => {
-    chrome.storage.sync.get('combination', (item) => {
-        resolve(item['combination']);
+  return new Promise((resolve) => {
+    chrome.storage.sync.get("combination", (item) => {
+      resolve(item["combination"]);
     });
-
   });
 }
 
 async function translation(mouseEvent) {
   let combination = await getCombinationOption();
-  if (combination === 'ctrl') {
+  if (combination === "ctrl") {
     if (!mouseEvent.ctrlKey) return;
-  }
-  else if (combination === 'alt') {
+  } else if (combination === "alt") {
     if (!mouseEvent.altKey) return;
-  }
-  else if (combination === 'command') {
+  } else if (combination === "command") {
     if (!mouseEvent.metaKey) return;
-  }
-  else if (combination === 'shift') {
+  } else if (combination === "shift") {
     if (!mouseEvent.shiftKey) return;
   }
 
-  const panel = document.querySelector('div.text-panel, div.text-panel-under');
+  const panel = document.querySelector("div.text-panel, div.text-panel-under");
   if (panel !== null && mouseEvent.path.includes(panel)) {
     return;
   }
@@ -112,42 +108,49 @@ async function translation(mouseEvent) {
   }
 
   if (text.length >= 4900) {
-    showPanel('Input is too long, please keep it under 5000 characters, which is the translation limit of DeepL.', mouseEvent, 'red');
+    showPanel(
+      "Input is too long, please keep it under 5000 characters, which is the translation limit of DeepL.",
+      mouseEvent,
+      "red"
+    );
     return;
   }
 
-  targetText = text.replace(/\r?\n/g, '');
-  targetText = targetText.replace(capital, '$1 $2');
-  targetText = targetText.replace(dash, '$1$3');
-  targetText = targetText.replace(coron, ':\n');
-  targetText = targetText.replace(semicoron, ';\n');
+  targetText = text.replace(/\r?\n/g, "");
+  targetText = targetText.replace(capital, "$1 $2");
+  targetText = targetText.replace(dash, "$1$3");
+  targetText = targetText.replace(coron, ":\n");
+  targetText = targetText.replace(semicoron, ";\n");
   targetText = encodeURIComponent(targetText);
   chrome.storage.sync.get(null, function (items) {
     let sourceLanguage = items.sourceLanguage;
     let targetLanguage = items.targetLanguage;
-    if (typeof sourceLanguage === 'undefined') {
-      sourceLanguage = 'en';
+    if (typeof sourceLanguage === "undefined") {
+      sourceLanguage = "en";
     }
-    if (typeof targetLanguage === 'undefined') {
-      targetLanguage = 'ja';
+    if (typeof targetLanguage === "undefined") {
+      targetLanguage = "ja";
     }
     chrome.runtime.sendMessage(
       {
-        type: 'getTranslated',
+        type: "getTranslated",
         sourceLanguage: sourceLanguage,
         targetLanguage: targetLanguage,
         text: targetText,
       },
       function (response) {
-      if (response.text === 'Timeout has occurred. Please increase "threshold diff second" from the options screen.') {
-        showPanel(response.text, mouseEvent, 'red')
-        return;
-      }
-        showPanel(response.text, mouseEvent, 'black')
+        if (
+          response.text ===
+          'Timeout has occurred. Please increase "threshold diff second" from the options screen.'
+        ) {
+          showPanel(response.text, mouseEvent, "red");
+          return;
+        }
+        showPanel(response.text, mouseEvent, "black");
       }
     );
   });
   return;
 }
-document.addEventListener('mouseup', translation);
-document.addEventListener('mousedown', removePanel);
+document.addEventListener("mouseup", translation);
+document.addEventListener("mousedown", removePanel);

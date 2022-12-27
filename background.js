@@ -1,5 +1,5 @@
 function isPdfDownloadable(details) {
-  if (details.url.includes('pdfjs.action=download')) {
+  if (details.url.includes("pdfjs.action=download")) {
     return true;
   }
 }
@@ -14,39 +14,39 @@ function getHeaderByName(headers, headerName) {
   return null;
 }
 
-function getHeadersWithContentDispositionAttachment(details) {
-  let headers = details.responseHeaders;
-  let cdHeader = getHeaderByName(headers, 'content-disposition');
-  if (!cdHeader) {
-    cdHeader = {
-      name: 'Content-Disposition',
-    };
-    headers.push(cdHeader);
-  }
+// function getHeadersWithContentDispositionAttachment(details) {
+//   let headers = details.responseHeaders;
+//   let cdHeader = getHeaderByName(headers, 'content-disposition');
+//   if (!cdHeader) {
+//     cdHeader = {
+//       name: 'Content-Disposition',
+//     };
+//     headers.push(cdHeader);
+//   }
 
-  if (!/^attachment/i.test(cdHeader.value)) {
-    cdHeader.value = 'attachment' + cdHeader.value.replace(/^[^;]+/i, '');
-    return {
-      responseHeaders: headers,
-    };
-  }
-  return undefined;
-}
+//   if (!/^attachment/i.test(cdHeader.value)) {
+//     cdHeader.value = 'attachment' + cdHeader.value.replace(/^[^;]+/i, '');
+//     return {
+//       responseHeaders: headers,
+//     };
+//   }
+//   return undefined;
+// }
 
 function isPdfFile(details) {
-  var header = getHeaderByName(details.responseHeaders, 'content-type');
+  var header = getHeaderByName(details.responseHeaders, "content-type");
   if (header) {
-    var headerValue = header.value.toLowerCase().split(';', 1)[0].trim();
-    if (headerValue === 'application/pdf') {
+    var headerValue = header.value.toLowerCase().split(";", 1)[0].trim();
+    if (headerValue === "application/pdf") {
       return true;
     }
-    if (headerValue === 'application/octet-stream') {
-      if (details.url.toLowerCase().indexOf('.pdf') > 0) {
+    if (headerValue === "application/octet-stream") {
+      if (details.url.toLowerCase().indexOf(".pdf") > 0) {
         return true;
       }
       var cdHeader = getHeaderByName(
         details.responseHeaders,
-        'content-disposition'
+        "content-disposition"
       );
       if (cdHeader && /\.pdf(["']|$)/i.test(cdHeader.value)) {
         return true;
@@ -58,14 +58,22 @@ function isPdfFile(details) {
 
 chrome.webRequest.onHeadersReceived.addListener(
   function (details) {
-    chrome.storage.sync.get('ison', function (items) {
+    chrome.storage.sync.get("ison", function (items) {
       let isOn = items.ison;
-      if (typeof isOn === 'undefined') {
+      if (typeof isOn === "undefined") {
         isOn = true;
       }
       if (isOn && isPdfFile(details)) {
         if (isPdfDownloadable(details)) {
-          return getHeadersWithContentDispositionAttachment(details);
+          chrome.declarativeNetRequest.updateEnabledRulesets({
+            enableRulesetIds: ["ruleset_1"],
+          });
+          return details.responseHeaders;
+          //return getHeadersWithContentDispositionAttachment(details);
+        } else {
+          chrome.declarativeNetRequest.updateEnabledRulesets({
+            disableRulesetIds: ["ruleset_1"],
+          });
         }
         let url = details.url;
         chrome.tabs.update(details.tabId, {
@@ -77,17 +85,17 @@ chrome.webRequest.onHeadersReceived.addListener(
     });
   },
   {
-    urls: ['<all_urls>'],
-    types: ['main_frame', 'sub_frame'],
+    urls: ["<all_urls>"],
+    types: ["main_frame", "sub_frame"],
   },
-  ['blocking', 'responseHeaders']
+  ["responseHeaders"]
 );
 
 chrome.webRequest.onBeforeRequest.addListener(
   function (details) {
     chrome.storage.sync.get(null, function (items) {
       let isOn = items.ison;
-      if (typeof isOn === 'undefined') {
+      if (typeof isOn === "undefined") {
         isOn = true;
       }
       if (isOn) {
@@ -105,19 +113,18 @@ chrome.webRequest.onBeforeRequest.addListener(
   },
   {
     urls: [
-      'file://*/*.pdf',
-      'file://*/*.PDF',
-      ...(MediaError.prototype.hasOwnProperty('message')
-        ? []
-        : ['ftp://*/*.pdf', 'ftp://*/*.PDF']),
+      "file://*/*.pdf",
+      "file://*/*.PDF",
+      //....(MediaError.prototype.hasOwnProperty('message')
+      //.  ? []
+      //.  : ['ftp://*/*.pdf', 'ftp://*/*.PDF']),
     ],
-    types: ['main_frame', 'sub_frame'],
-  },
-  ['blocking']
+    types: ["main_frame", "sub_frame"],
+  }
 );
 
 function getViewerURL(pdfUrl) {
-  return '/pdf.js/web / viewer.html' + '?file=' + encodeURIComponent(pdfUrl);
+  return "/pdf.js/web / viewer.html" + "?file=" + encodeURIComponent(pdfUrl);
 }
 
 chrome.extension.isAllowedFileSchemeAccess(function (isAllowedAccess) {
@@ -129,7 +136,7 @@ chrome.extension.isAllowedFileSchemeAccess(function (isAllowedAccess) {
       null,
       function (items) {
         let isOn = items.ison;
-        if (typeof isOn === 'undefined') {
+        if (typeof isOn === "undefined") {
           isOn = true;
         }
         if (details.frameId === 0 && !isPdfDownloadable(details) && isOn) {
@@ -141,12 +148,12 @@ chrome.extension.isAllowedFileSchemeAccess(function (isAllowedAccess) {
       {
         url: [
           {
-            urlPrefix: 'file://',
-            pathSuffix: '.pdf',
+            urlPrefix: "file://",
+            pathSuffix: ".pdf",
           },
           {
-            urlPrefix: 'file://',
-            pathSuffix: '.PDF',
+            urlPrefix: "file://",
+            pathSuffix: ".PDF",
           },
         ],
       }
@@ -154,12 +161,11 @@ chrome.extension.isAllowedFileSchemeAccess(function (isAllowedAccess) {
   });
 });
 
-
 const callCheckDeepl = function (tab, sendResponse) {
   chrome.tabs.sendMessage(
     tab.id,
     {
-      type: 'checkDeepl',
+      type: "checkDeepl",
     },
     function (response) {
       const translatedtext = response;
@@ -174,22 +180,22 @@ const callCheckDeepl = function (tab, sendResponse) {
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   chrome.storage.sync.get(null, function (items) {
     let isOn = items.ison;
-    if (typeof isOn === 'undefined') {
+    if (typeof isOn === "undefined") {
       isOn = true;
     }
-    if (isOn && request.type == 'getTranslated') {
-      const targetText = request.text.replace(/%2F/g, '%5C%2F'); //added
+    if (isOn && request.type == "getTranslated") {
+      const targetText = request.text.replace(/%2F/g, "%5C%2F"); //added
       const sourceLanguage = request.sourceLanguage;
       const targetLanguage = request.targetLanguage;
 
       chrome.tabs.create(
         {
           url:
-            'https://www.deepl.com/translator#' +
+            "https://www.deepl.com/translator#" +
             sourceLanguage +
-            '/' +
+            "/" +
             targetLanguage +
-            '/' +
+            "/" +
             targetText,
           active: false,
         },
@@ -202,13 +208,13 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
            * 生成されたタブから自発的に `ready` メッセージが送られて来れば，リスナが登録されたとわかる．
            */
           const listener = (message, sender) => {
-            if (message.type !== 'ready' || sender.tab.id !== tab.id) {
+            if (message.type !== "ready" || sender.tab.id !== tab.id) {
               return;
             }
 
             chrome.runtime.onMessage.removeListener(listener);
             callCheckDeepl(tab, sendResponse);
-          }
+          };
           chrome.runtime.onMessage.addListener(listener);
         }
       );
@@ -219,20 +225,19 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
 function updateIcon() {
   let isOn;
-  chrome.storage.sync.get('ison', function (items) {
+  chrome.storage.sync.get("ison", function (items) {
     if (!chrome.runtime.error) {
       isOn = items.ison;
-      if (typeof isOn === 'undefined') {
+      if (typeof isOn === "undefined") {
         isOn = true;
       }
-      console.log(isOn);
       if (isOn) {
-        chrome.browserAction.setIcon({ path: 'img/translation_off_16.png' });
+        chrome.action.setIcon({ path: "img/translation_off_16.png" });
         chrome.storage.sync.set({
           ison: false,
         });
       } else {
-        chrome.browserAction.setIcon({ path: 'img/translation_16.png' });
+        chrome.action.setIcon({ path: "img/translation_16.png" });
         chrome.storage.sync.set({
           ison: true,
         });
@@ -241,4 +246,4 @@ function updateIcon() {
   });
 }
 
-chrome.browserAction.onClicked.addListener(updateIcon);
+chrome.action.onClicked.addListener(updateIcon);
