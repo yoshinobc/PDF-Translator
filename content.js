@@ -1,13 +1,12 @@
-const sleep = (time) => new Promise(resolve => setTimeout(resolve, time));
+const sleep = (time) => new Promise((resolve) => setTimeout(resolve, time));
 
 async function checkDeepl() {
   const startTime = new Date();
   let thresholdDiffSecond;
-  chrome.storage.sync.get('thresholdDiffSecond', function (items) {
-    if (typeof items.thresholdDiffSecond === 'undefined') {
+  chrome.storage.sync.get("thresholdDiffSecond", function (items) {
+    if (typeof items.thresholdDiffSecond === "undefined") {
       thresholdDiffSecond = 10;
-    }
-    else {
+    } else {
       thresholdDiffSecond = items.thresholdDiffSecond;
     }
   });
@@ -18,12 +17,16 @@ async function checkDeepl() {
   let diffSecond;
   while (true) {
     translatedResult = document.getElementsByClassName(
-      'lmt__textarea lmt__target_textarea lmt__textarea_base_style'
+      "lmt__textarea lmt__target_textarea lmt__textarea_base_style"
     )[0];
 
-    if (typeof translatedResult !== 'undefined') {
-      translatedResultInnerText = translatedResult.innerText
-      if (typeof translatedResultInnerText !== 'undefined' && translatedResultInnerText.length > 0 && translatedResultInnerText != '\n') {
+    if (typeof translatedResult !== "undefined") {
+      translatedResultInnerText = translatedResult.innerText;
+      if (
+        typeof translatedResultInnerText !== "undefined" &&
+        translatedResultInnerText.length > 0 &&
+        translatedResultInnerText != "\n"
+      ) {
         return translatedResultInnerText;
       }
     }
@@ -40,10 +43,10 @@ async function checkDeepl() {
 }
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  if (request.type == 'checkDeepl') {
+  if (request.type == "checkDeepl") {
     checkDeepl().then(sendResponse);
   }
   return true;
 });
 
-chrome.runtime.sendMessage({ type: 'ready' });
+chrome.runtime.sendMessage({ type: "ready" });

@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "modifyHeaders",
+      "responseHeaders": [
+        {
+          "header": "name",
+          "operation": "set",
+          "value": "Content-Disposition"
+        },
+        {
+          "header": "value",
+          "operation": "set",
+          "value": "attachment"
+        }
+      ]
+    },
+    "condition": {
+      "resourceTypes": ["main_frame", "sub_frame"]
+    }
+  }
+]
