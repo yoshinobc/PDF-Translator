@@ -5,7 +5,7 @@ const semicoron = RegExp(';', 'g');
 
 function removePanel(mouseEvent) {
   const panel = document.querySelector('div.text-panel, div.text-panel-under');
-  if (panel === null || mouseEvent.path.includes(panel)) {
+  if (panel === null || mouseEvent.composedPath().includes(panel)) {
     return;
   }
   panel.remove();
@@ -101,7 +101,7 @@ async function translation(mouseEvent) {
   }
 
   const panel = document.querySelector('div.text-panel, div.text-panel-under');
-  if (panel !== null && mouseEvent.path.includes(panel)) {
+  if (panel !== null && mouseEvent.composedPath().includes(panel)) {
     return;
   }
   const text = document.getSelection().toString();
