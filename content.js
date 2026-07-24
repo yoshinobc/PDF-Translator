@@ -16,9 +16,9 @@ async function checkDeepl() {
   let diff;
   let diffSecond;
   while (true) {
-    translatedResult = document.getElementsByClassName(
-      "lmt__textarea lmt__target_textarea lmt__textarea_base_style"
-    )[0];
+    translatedResult = document.getElementsByTagName(
+      "d-textarea"
+    )[1];
 
     // chromeのバージョンによってinnerTextで取得するかvalueで取得するかが変わる
     if (typeof translatedResult !== "undefined") {
