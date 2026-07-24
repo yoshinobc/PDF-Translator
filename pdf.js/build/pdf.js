@@ -912,12 +912,7 @@ function isLittleEndian() {
 }
 
 function isEvalSupported() {
-  try {
-    new Function('');
-    return true;
-  } catch (e) {
-    return false;
-  }
+  return false;
 }
 
 var rgbBuf = ['rgb(', 0, ',', 0, ',', 0, ')'];
@@ -9976,7 +9971,7 @@ function getDocument(src) {
   }
 
   if (typeof params.isEvalSupported !== 'boolean') {
-    params.isEvalSupported = true;
+    params.isEvalSupported = false;
   }
 
   if (typeof params.disableFontFace !== 'boolean') {
@@ -12935,7 +12930,7 @@ var runtime = function (exports) {
 try {
   regeneratorRuntime = runtime;
 } catch (accidentalStrictMode) {
-  Function("r", "regeneratorRuntime = r")(runtime);
+  globalThis.regeneratorRuntime = runtime;
 }
 /* WEBPACK VAR INJECTION */}.call(this, __w_pdfjs_require__(182)(module)))
 

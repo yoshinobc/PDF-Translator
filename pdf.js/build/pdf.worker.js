@@ -1300,7 +1300,7 @@ var runtime = function (exports) {
 try {
   regeneratorRuntime = runtime;
 } catch (accidentalStrictMode) {
-  Function("r", "regeneratorRuntime = r")(runtime);
+  globalThis.regeneratorRuntime = runtime;
 }
 /* WEBPACK VAR INJECTION */}.call(this, __w_pdfjs_require__(4)(module)))
 
@@ -2043,12 +2043,7 @@ function isLittleEndian() {
 }
 
 function isEvalSupported() {
-  try {
-    new Function('');
-    return true;
-  } catch (e) {
-    return false;
-  }
+  return false;
 }
 
 var rgbBuf = ['rgb(', 0, ',', 0, ',', 0, ')'];
@@ -30670,7 +30665,7 @@ var PartialEvaluator = function PartialEvaluatorClosure() {
     disableFontFace: false,
     nativeImageDecoderSupport: _util.NativeImageDecoding.DECODE,
     ignoreErrors: false,
-    isEvalSupported: true
+    isEvalSupported: false
   };
 
   function PartialEvaluator(_ref) {

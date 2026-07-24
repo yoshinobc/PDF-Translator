@@ -3308,7 +3308,7 @@
       try {
         regeneratorRuntime = runtime;
       } catch (accidentalStrictMode) {
-        Function("r", "regeneratorRuntime = r")(runtime);
+        globalThis.regeneratorRuntime = runtime;
       }
       /* WEBPACK VAR INJECTION */
 }.call(this, __webpack_require__(4)(module)))
@@ -4385,7 +4385,7 @@
         kind: OptionKind.API
       },
       isEvalSupported: {
-        value: true,
+        value: false,
         kind: OptionKind.API
       },
       maxImageSize: {

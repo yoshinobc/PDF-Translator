@@ -1,12 +1,6 @@
-function isPdfDownloadable(details) {
-  if (details.url.includes('pdfjs.action=download')) {
-    return true;
-  }
-}
-
 function getHeaderByName(headers, headerName) {
-  for (var i = 0; i < headers.length; i++) {
-    var header = headers[i];
+  for (let i = 0; i < headers.length; i++) {
+    const header = headers[i];
     if (header.name.toLowerCase() === headerName) {
       return header;
     }
@@ -14,29 +8,14 @@ function getHeaderByName(headers, headerName) {
   return null;
 }
 
-function getHeadersWithContentDispositionAttachment(details) {
-  let headers = details.responseHeaders;
-  let cdHeader = getHeaderByName(headers, 'content-disposition');
-  if (!cdHeader) {
-    cdHeader = {
-      name: 'Content-Disposition',
-    };
-    headers.push(cdHeader);
-  }
-
-  if (!/^attachment/i.test(cdHeader.value)) {
-    cdHeader.value = 'attachment' + cdHeader.value.replace(/^[^;]+/i, '');
-    return {
-      responseHeaders: headers,
-    };
-  }
-  return undefined;
-}
-
 function isPdfFile(details) {
-  var header = getHeaderByName(details.responseHeaders, 'content-type');
+  const responseHeaders = details.responseHeaders || [];
+  const header = getHeaderByName(responseHeaders, 'content-type');
   if (header) {
-    var headerValue = header.value.toLowerCase().split(';', 1)[0].trim();
+    const headerValue = (header.value || '')
+      .toLowerCase()
+      .split(';', 1)[0]
+      .trim();
     if (headerValue === 'application/pdf') {
       return true;
     }
@@ -44,11 +23,11 @@ function isPdfFile(details) {
       if (details.url.toLowerCase().indexOf('.pdf') > 0) {
         return true;
       }
-      var cdHeader = getHeaderByName(
-        details.responseHeaders,
+      const cdHeader = getHeaderByName(
+        responseHeaders,
         'content-disposition'
       );
-      if (cdHeader && /\.pdf(["']|$)/i.test(cdHeader.value)) {
+      if (cdHeader && /\.pdf(["']|$)/i.test(cdHeader.value || '')) {
         return true;
       }
     }
@@ -56,189 +35,230 @@ function isPdfFile(details) {
   return false;
 }
 
+function getViewerURL(pdfUrl) {
+  return chrome.runtime.getURL(
+    `/pdf.js/web/viewer.html?file=${encodeURIComponent(pdfUrl)}`
+  );
+}
+
+function getIsOn(callback) {
+  chrome.storage.sync.get('ison', function (items) {
+    if (chrome.runtime.lastError) {
+      console.error(chrome.runtime.lastError.message);
+      callback(false);
+      return;
+    }
+    callback(typeof items.ison === 'undefined' ? true : items.ison);
+  });
+}
+
+function openPdfInViewer(details) {
+  if (details.tabId < 0) {
+    return;
+  }
+
+  getIsOn(function (isOn) {
+    if (!isOn) {
+      return;
+    }
+
+    chrome.tabs.update(
+      details.tabId,
+      {
+        url: getViewerURL(details.url),
+      },
+      function () {
+        if (chrome.runtime.lastError) {
+          console.error(chrome.runtime.lastError.message);
+        }
+      }
+    );
+  });
+}
+
 chrome.webRequest.onHeadersReceived.addListener(
   function (details) {
-    chrome.storage.sync.get('ison', function (items) {
-      let isOn = items.ison;
-      if (typeof isOn === 'undefined') {
-        isOn = true;
-      }
-      if (isOn && isPdfFile(details)) {
-        if (isPdfDownloadable(details)) {
-          return getHeadersWithContentDispositionAttachment(details);
-        }
-        let url = details.url;
-        chrome.tabs.update(details.tabId, {
-          url: chrome.runtime.getURL(
-            `/pdf.js/web/viewer.html?file=${encodeURIComponent(url)}`
-          ),
-        });
-      }
-    });
+    if (isPdfFile(details)) {
+      openPdfInViewer(details);
+    }
   },
   {
-    urls: ['<all_urls>'],
+    urls: ['http://*/*', 'https://*/*'],
     types: ['main_frame', 'sub_frame'],
   },
-  ['blocking', 'responseHeaders']
+  ['responseHeaders']
 );
 
 chrome.webRequest.onBeforeRequest.addListener(
   function (details) {
-    chrome.storage.sync.get(null, function (items) {
-      let isOn = items.ison;
-      if (typeof isOn === 'undefined') {
-        isOn = true;
-      }
-      if (isOn) {
-        if (isPdfDownloadable(details)) {
-          return;
-        }
-        let url = details.url;
-        chrome.tabs.update({
-          url: chrome.runtime.getURL(
-            `/pdf.js/web/viewer.html?file=${encodeURIComponent(url)}`
-          ),
-        });
-      }
-    });
+    openPdfInViewer(details);
   },
   {
-    urls: [
-      'file://*/*.pdf',
-      'file://*/*.PDF',
-      ...(MediaError.prototype.hasOwnProperty('message')
-        ? []
-        : ['ftp://*/*.pdf', 'ftp://*/*.PDF']),
-    ],
+    urls: ['file://*/*.pdf', 'file://*/*.PDF'],
     types: ['main_frame', 'sub_frame'],
-  },
-  ['blocking']
+  }
 );
 
-function getViewerURL(pdfUrl) {
-  return '/pdf.js/web / viewer.html' + '?file=' + encodeURIComponent(pdfUrl);
+const pendingTranslations = new Map();
+const readyTranslationTabs = new Set();
+
+function getRuntimeErrorText(prefix) {
+  if (!chrome.runtime.lastError) {
+    return null;
+  }
+  return `${prefix}: ${chrome.runtime.lastError.message}`;
 }
 
-chrome.extension.isAllowedFileSchemeAccess(function (isAllowedAccess) {
-  if (isAllowedAccess) {
+function closeTranslationTab(tabId) {
+  chrome.tabs.remove(tabId, function () {
+    const errorText = getRuntimeErrorText('Failed to close the DeepL tab');
+    if (errorText) {
+      console.error(errorText);
+    }
+  });
+}
+
+function finishTranslation(tabId, text) {
+  const pending = pendingTranslations.get(tabId);
+  if (!pending) {
     return;
   }
-  chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
-    chrome.storage.sync.get(
-      null,
-      function (items) {
-        let isOn = items.ison;
-        if (typeof isOn === 'undefined') {
-          isOn = true;
-        }
-        if (details.frameId === 0 && !isPdfDownloadable(details) && isOn) {
-          chrome.tabs.update(details.tabId, {
-            url: getViewerURL(details.url),
-          });
-        }
-      },
-      {
-        url: [
-          {
-            urlPrefix: 'file://',
-            pathSuffix: '.pdf',
-          },
-          {
-            urlPrefix: 'file://',
-            pathSuffix: '.PDF',
-          },
-        ],
-      }
-    );
-  });
-});
 
+  pendingTranslations.delete(tabId);
+  readyTranslationTabs.delete(tabId);
+  pending.sendResponse({ text: text });
+  closeTranslationTab(tabId);
+}
 
-const callCheckDeepl = function (tab, sendResponse) {
+function callCheckDeepl(tabId) {
+  if (!pendingTranslations.has(tabId)) {
+    return;
+  }
+
   chrome.tabs.sendMessage(
-    tab.id,
+    tabId,
     {
       type: 'checkDeepl',
     },
     function (response) {
-      const translatedtext = response;
-      sendResponse({
-        text: translatedtext,
-      });
-      chrome.tabs.remove(tab.id);
+      const errorText = getRuntimeErrorText(
+        'Failed to communicate with the DeepL tab'
+      );
+      finishTranslation(tabId, errorText || response || 'Translation failed.');
     }
   );
-};
+}
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  chrome.storage.sync.get(null, function (items) {
-    let isOn = items.ison;
-    if (typeof isOn === 'undefined') {
-      isOn = true;
+function handleTranslationRequest(request, sendResponse) {
+  getIsOn(function (isOn) {
+    if (!isOn) {
+      sendResponse({ text: 'PDF Translator is turned off.' });
+      return;
     }
-    if (isOn && request.type == 'getTranslated') {
-      const targetText = request.text.replace(/%2F/g, '%5C%2F'); //added
-      const sourceLanguage = request.sourceLanguage;
-      const targetLanguage = request.targetLanguage;
 
-      chrome.tabs.create(
-        {
-          url:
-            'https://www.deepl.com/translator#' +
-            sourceLanguage +
-            '/' +
-            targetLanguage +
-            '/' +
-            targetText,
-          active: false,
-        },
-        function (tab) {
-          /*
-           * `chrome.tabs.create()` 直後は，生成されたタブにメッセージのリスナが存在しない．
-           * リスナが存在しないタブに対して `chrome.tabs.sendMessage()` を行ってしまうと，次のエラーが発生する．
-           * > Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.
-           * このため，リスナが登録されたことを確認してから `chrome.tabs.sendMessage()` を行う必要がある．
-           * 生成されたタブから自発的に `ready` メッセージが送られて来れば，リスナが登録されたとわかる．
-           */
-          const listener = (message, sender) => {
-            if (message.type !== 'ready' || sender.tab.id !== tab.id) {
-              return;
-            }
+    const targetText = request.text.replace(/%2F/g, '%5C%2F');
+    const deeplUrl =
+      'https://www.deepl.com/translator#' +
+      request.sourceLanguage +
+      '/' +
+      request.targetLanguage +
+      '/' +
+      targetText;
 
-            chrome.runtime.onMessage.removeListener(listener);
-            callCheckDeepl(tab, sendResponse);
-          }
-          chrome.runtime.onMessage.addListener(listener);
+    chrome.tabs.create(
+      {
+        url: deeplUrl,
+        active: false,
+      },
+      function (tab) {
+        const errorText = getRuntimeErrorText('Failed to open DeepL');
+        if (errorText || !tab || typeof tab.id === 'undefined') {
+          sendResponse({ text: errorText || 'Failed to open DeepL.' });
+          return;
         }
-      );
-    }
-  });
-  return true;
-});
 
-function updateIcon() {
-  let isOn;
-  chrome.storage.sync.get('ison', function (items) {
-    if (!chrome.runtime.error) {
-      isOn = items.ison;
-      if (typeof isOn === 'undefined') {
-        isOn = true;
+        pendingTranslations.set(tab.id, { sendResponse: sendResponse });
+        if (readyTranslationTabs.has(tab.id)) {
+          callCheckDeepl(tab.id);
+        }
       }
-      console.log(isOn);
-      if (isOn) {
-        chrome.browserAction.setIcon({ path: 'img/translation_off_16.png' });
-        chrome.storage.sync.set({
-          ison: false,
-        });
-      } else {
-        chrome.browserAction.setIcon({ path: 'img/translation_16.png' });
-        chrome.storage.sync.set({
-          ison: true,
-        });
-      }
-    }
+    );
   });
 }
 
-chrome.browserAction.onClicked.addListener(updateIcon);
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  if (request.type === 'ready') {
+    if (!sender.tab || typeof sender.tab.id === 'undefined') {
+      return false;
+    }
+
+    const tabId = sender.tab.id;
+    readyTranslationTabs.add(tabId);
+    callCheckDeepl(tabId);
+    return false;
+  }
+
+  if (request.type === 'getTranslated') {
+    handleTranslationRequest(request, sendResponse);
+    return true;
+  }
+
+  return false;
+});
+
+chrome.tabs.onRemoved.addListener(function (tabId) {
+  readyTranslationTabs.delete(tabId);
+
+  const pending = pendingTranslations.get(tabId);
+  if (pending) {
+    pendingTranslations.delete(tabId);
+    pending.sendResponse({
+      text: 'The DeepL tab was closed before translation completed.',
+    });
+  }
+});
+
+function setIcon(isOn) {
+  chrome.action.setIcon(
+    {
+      path: isOn
+        ? 'img/translation_16.png'
+        : 'img/translation_off_16.png',
+    },
+    function () {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.message);
+      }
+    }
+  );
+}
+
+function syncIcon() {
+  getIsOn(setIcon);
+}
+
+function updateIcon() {
+  getIsOn(function (isOn) {
+    chrome.storage.sync.set({ ison: !isOn }, function () {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.message);
+        return;
+      }
+      setIcon(!isOn);
+    });
+  });
+}
+
+chrome.action.onClicked.addListener(updateIcon);
+chrome.runtime.onInstalled.addListener(syncIcon);
+chrome.runtime.onStartup.addListener(syncIcon);
+
+chrome.storage.onChanged.addListener(function (changes, areaName) {
+  if (areaName === 'sync' && changes.ison) {
+    const isOn =
+      typeof changes.ison.newValue === 'undefined'
+        ? true
+        : changes.ison.newValue;
+    setIcon(isOn);
+  }
+});
